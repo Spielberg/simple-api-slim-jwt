@@ -32,6 +32,11 @@ return [
         'jwt' => [
           'secret' => getenv('JWT_SECRET'),
           'exp' => 24, // in hours
-      ]
+        ],
+
+        // pagination
+        'pagination' => [
+          'limit' => 10,
+        ],
     ],
 ];
