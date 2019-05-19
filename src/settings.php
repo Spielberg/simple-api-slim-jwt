@@ -30,7 +30,8 @@ return [
 
         // jwt settings
         'jwt' => [
-          'secret' => getenv('JWT_SECRET')
+          'secret' => getenv('JWT_SECRET'),
+          'exp' => 24, // in hours
       ]
     ],
 ];
