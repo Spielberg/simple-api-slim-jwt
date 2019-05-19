@@ -15,20 +15,16 @@ return function (Request $request, Response $response, array $args) {
   }
 
   // verify is superuser.
-  if(!$token['superuser'] && $token['id'] !== $input['id']) {
+  if(!$token['superuser']) {
     return $this->response->withJson(['error' => true, 'message' => 'No tienes suficientes permisos para hacer esta llamada.']);  
     }
 
   // allowed.
   $allowed = [
     'name' => PDO::PARAM_STR,
-    'email' => PDO::PARAM_STR,
-    'password' => PDO::PARAM_STR,
+    'active' => PDO::PARAM_BOOL,
+    'deleted' => PDO::PARAM_BOOL,
   ];
-  if ($token['superuser']) {
-    $allowed['active'] = PDO::PARAM_BOOL;
-    $allowed['deleted'] = PDO::PARAM_BOOL;
-  }
 
   $arrQuery = [];
   $arrValue = [];
@@ -43,14 +39,11 @@ return function (Request $request, Response $response, array $args) {
     }
 
   // build quey.
-  $sql = 'UPDATE users SET ' . implode($arrValue, ', ') . ' WHERE id = :id LIMIT 1';
+  $sql = 'UPDATE tipos_inmuebles SET ' . implode($arrValue, ', ') . ' WHERE id = :id LIMIT 1';
   $sth = $this->db->prepare($sql);
   $sth->bindParam('id', $input['id']);
   foreach($arrQuery as $key) {
-    $value = $key === 'password'
-      ? password_hash($input[$key], PASSWORD_DEFAULT)
-      : $input[$key];
-    $sth->bindParam($key, $value, $allowed[$key]);
+    $sth->bindParam($key, $input[$key], $allowed[$key]);
   };
   
   try {

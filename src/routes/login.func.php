@@ -17,21 +17,22 @@ return function (Request $request, Response $response, array $args) {
 
  // verify email address.
  if(!$user) {
-     return $this->response->withJson(['error' => true, 'message' => 'These credentials do not match our records.']);  
+     return $this->response->withJson(['error' => true, 'message' => 'El usuario y/o la contraseña son incorrectas.']);  
  }
 
  // verify password.
  if (!password_verify($input['password'],$user->password)) {
-     return $this->response->withJson(['error' => true, 'message' => 'These credentials do not match our records.']);  
+     return $this->response->withJson(['error' => true, 'message' => 'El usuario y/o la contraseña son incorrectas.']);  
  }
 
- // update last_login
+ // update last_login.
  $sql = "UPDATE users SET last_login = NOW() WHERE id= :id";
  $sth = $this->db->prepare($sql);
  $sth->bindParam("id", $user->id);
  $sth->execute();
 
- $settings = $this->get('settings'); // get settings array.
+ // get settings array.
+ $settings = $this->get('settings');
  
  $d = new DateTime();
  $token = JWT::encode([
@@ -41,7 +42,7 @@ return function (Request $request, Response $response, array $args) {
    'iat' => $d->getTimestamp(), 
    'name' => $user->name,
    'superuser' => (int) $user->superuser === 1, 
- ], $settings['jwt']['secret'], "HS256");
+ ], $settings['jwt']['secret'], 'HS256');
 
  return $this->response->withJson(['token' => $token]);
 };
