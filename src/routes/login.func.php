@@ -44,5 +44,5 @@ return function (Request $request, Response $response, array $args) {
    'superuser' => (int) $user->superuser === 1, 
  ], $settings['jwt']['secret'], 'HS256');
 
- return $this->response->withJson(['token' => $token]);
+ return $this->response->withJson(['error' => false, 'data' => ['token' => $token]]);
 };
