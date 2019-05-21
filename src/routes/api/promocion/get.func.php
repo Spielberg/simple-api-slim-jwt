@@ -20,10 +20,10 @@ return function (Request $request, Response $response, array $args) {
   $sth->bindParam('offset', $offset, PDO::PARAM_INT);
   try {
     $sth->execute();
+    $total = (int) $this->db->query('SELECT count(*) FROM promociones WHERE deleted = 0')->fetchColumn();
   } catch(Exception $e) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
-  $total = (int) $this->db->query('SELECT FOUND_ROWS()')->fetchColumn();
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
     return $result;
