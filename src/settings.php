@@ -1,7 +1,7 @@
 <?php
 $dotenv = Dotenv\Dotenv::create(__DIR__.'/../');
 $dotenv->load();
-$dotenv->required(['JWT_SECRET']);
+$dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS', 'JWT_SECRET']);
 
 return [
     'settings' => [
@@ -10,10 +10,10 @@ return [
 
         // Database
         'db' => [            
-          'host' => '127.0.0.1',             
-          'dbname' => '002_api_andia',             
-          'user' => 'root',            
-          'pass' => 'root'        
+          'host' => getenv('DB_HOST'),             
+          'dbname' => getenv('DB_NAME'),             
+          'user' => getenv('DB_USER'),            
+          'pass' => getenv('DB_PASS')        
         ],
 
         // Renderer settings
