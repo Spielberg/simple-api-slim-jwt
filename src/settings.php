@@ -1,7 +1,7 @@
 <?php
 $dotenv = Dotenv\Dotenv::create(__DIR__.'/../');
 $dotenv->load();
-$dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS', 'JWT_SECRET']);
+$dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_PORT', 'JWT_SECRET']);
 
 return [
     'settings' => [
@@ -13,7 +13,8 @@ return [
           'host' => getenv('DB_HOST'),             
           'dbname' => getenv('DB_NAME'),             
           'user' => getenv('DB_USER'),            
-          'pass' => getenv('DB_PASS')        
+          'pass' => getenv('DB_PASS'),
+          'port' => getenv('DB_PORT'),
         ],
 
         // Renderer settings
