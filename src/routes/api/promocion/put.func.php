@@ -46,6 +46,27 @@ return function (Request $request, Response $response, array $args) {
   foreach($arrQuery as $key) {
     $sth->bindParam($key, $input[$key], $allowed[$key]);
   };
+
+  // guardamos ahora los inmuebles
+  $sql = 'DELETE FROM `promociones_tipos_inmuebles` WHERE `promociones_id` = :id';
+  $sth = $this->db->prepare($sql);
+  $sth->bindParam('id', $input['id']);
+  try {
+    $sth->execute();
+  } catch(Exception $e) {
+    return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+  }
+  foreach($input['inmuebles'] as $inmuebleId) {
+    $sql = 'INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id) VALUES (:id, :tipos_inmuebles_id)';
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam('id', $input['id']);
+    $sth->bindParam('tipos_inmuebles_id', $inmuebleId);
+    try {
+      $sth->execute();
+    } catch(Exception $e) {
+      return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+    }
+  }
   
   try {
     $sth->execute();

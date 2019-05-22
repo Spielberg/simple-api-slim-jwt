@@ -39,6 +39,19 @@ return function (Request $request, Response $response, array $args) {
   
   $id = (int) $this->db->query('SELECT LAST_INSERT_ID()')->fetchColumn();
     
+  // guardamos ahora los inmuebles
+  foreach($input['inmuebles'] as $inmuebleId) {
+    $sql = 'INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id) VALUES (:promociones_id, :tipos_inmuebles_id)';
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam('promociones_id', $id);
+    $sth->bindParam('tipos_inmuebles_id', $inmuebleId);
+    try {
+      $sth->execute();
+    } catch(Exception $e) {
+      return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+    }
+  }
+
   return $this->response->withJson([
     'error' => false,
     'data' => [
