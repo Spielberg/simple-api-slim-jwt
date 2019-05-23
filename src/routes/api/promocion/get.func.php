@@ -14,6 +14,7 @@ return function (Request $request, Response $response, array $args) {
   $offset = (int) $request->getQueryParam('offset', 0);
   $id = $request->getQueryParam('id', null);
   $query = $request->getQueryParam('query', null);
+  $telefono = $request->getQueryParam('telefono', null);
 
   // get promociones detaills
   $params = [
@@ -31,6 +32,11 @@ return function (Request $request, Response $response, array $args) {
     $select .= 'AND ( name LIKE :query OR zona LIKE :query) ';
     $count  .= 'AND ( name LIKE "%' . $query . '%" OR zona LIKE "%' . $query . '%") ';
     $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
+  }
+  if ($telefono !== null && $telefono !== '') {
+    $select .= 'AND telefono LIKE :telefono ';
+    $count  .= 'AND telefono LIKE "%' . $telefono . '%") ';
+    $params[] = [ 'key' => 'telefono', 'var' => '%' . $telefono . '%', 'code' => PDO::PARAM_STR ];
   }
   $select .= 'LIMIT :limit OFFSET :offset';
   $sth = $this->db->prepare($select);

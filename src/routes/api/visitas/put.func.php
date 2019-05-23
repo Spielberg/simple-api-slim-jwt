@@ -14,41 +14,38 @@ return function (Request $request, Response $response, array $args) {
     return $this->response->withJson(['error' => true, 'message' => 'Falta alguno de los parámetros obligatorios: id.']);
   }
 
-  // verify is superuser.
-  if(!$token['superuser']) {
-    return $this->response->withJson(['error' => true, 'message' => 'No tienes suficientes permisos para hacer esta llamada.']);  
-    }
-
   // allowed.
   $allowed = [
-    'name' => PDO::PARAM_STR,
-    'zona' => PDO::PARAM_STR,
-    'active' => PDO::PARAM_BOOL,
-    'deleted' => PDO::PARAM_BOOL,
+    'conociste',
+    'email',
+    'fecha_visita',
+    'name',
+    'observaciones',
+    'promociones_id',
+    'status',
+    'telefono',
+    'users_id',
   ];
 
-  $arrQuery = [];
+  $arrInput = [
+    'id' => $input['id'],
+  ];
   $arrValue = [];
-  foreach($allowed as $key => $value){
+  foreach($allowed as $key){
     if (isset($input[$key]) && $input[$key] !== '') {
-      $arrQuery[] = $key;
+      $arrInput[$key] = $input[$key];
       $arrValue[] = "$key = :$key";
     }
   }
-  if(count($arrQuery) === 0) {
+  if(count($arrInput) === 0) {
     return $this->response->withJson(['error' => true, 'message' => 'Ningún parametro para actualizar.']);  
     }
 
   // build quey.
-  $sql = 'UPDATE promociones SET ' . implode($arrValue, ', ') . ' WHERE id = :id LIMIT 1';
+  $sql = 'UPDATE visitas SET ' . implode($arrValue, ', ') . ' WHERE id = :id LIMIT 1';
   $sth = $this->db->prepare($sql);
-  $sth->bindParam('id', $input['id']);
-  foreach($arrQuery as $key) {
-    $sth->bindParam($key, $input[$key], $allowed[$key]);
-  };
-  
   try {
-    $sth->execute();
+    $sth->execute($arrInput);
   } catch(Exception $e) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }

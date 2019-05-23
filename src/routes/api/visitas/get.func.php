@@ -29,8 +29,8 @@ return function (Request $request, Response $response, array $args) {
             'WHERE visitas.deleted = 0 ';
   $count = 'SELECT count(*) FROM visitas WHERE deleted = 0 ';
   if ($id !== null && $id !== '') {
-    $select .= "AND id = :id ";
-    $count  .= 'AND id = ' . $id;
+    $select .= "AND visitas.id = :id ";
+    $count  .= 'AND visitas.id = ' . $id;
     $params[] = [ 'key' => 'id', 'var' => $id, 'code' => PDO::PARAM_INT ];
   }
   if ($query !== null && $query !== '') {
