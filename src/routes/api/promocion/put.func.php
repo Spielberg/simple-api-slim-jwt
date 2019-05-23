@@ -47,7 +47,7 @@ return function (Request $request, Response $response, array $args) {
     $sth->bindParam($key, $input[$key], $allowed[$key]);
   };
   try {
-    $this->db->query($sql)->execute();
+    $sth->execute();
   } catch(Exception $e) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
@@ -60,14 +60,16 @@ return function (Request $request, Response $response, array $args) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
   
-  foreach(array_unique($input['inmuebles']) as $inmuebleId) {
-    $sth = $this->db->prepare('INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id) VALUES (:id, :tipos_inmuebles_id)');
-    $sth->bindParam('id', $input['id']);
-    $sth->bindParam('tipos_inmuebles_id', $inmuebleId);
-    try {
-      $sth->execute();
-    } catch(Exception $e) {
-      return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+  if ($input['inmuebles']) {
+    foreach(array_unique($input['inmuebles']) as $inmuebleId) {
+      $sth = $this->db->prepare('INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id) VALUES (:id, :tipos_inmuebles_id)');
+      $sth->bindParam('id', $input['id']);
+      $sth->bindParam('tipos_inmuebles_id', $inmuebleId);
+      try {
+        $sth->execute();
+      } catch(Exception $e) {
+        return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+      }
     }
   }
       
