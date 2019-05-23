@@ -8,11 +8,6 @@ return function (Request $request, Response $response, array $args) {
  
   $token = $request->getAttribute('decoded_token_data');
 
-  // verify is superuser.
-  if(!$token['superuser']) {
-    return $this->response->withJson(['error' => true, 'message' => 'No tienes suficientes permisos para hacer esta llamada.']);  
-    } 
-  
   // get settings array.
   $settings = $this->get('settings');  
 
@@ -20,17 +15,29 @@ return function (Request $request, Response $response, array $args) {
   $input = $request->getParsedBody();
   foreach([
     'name',
-    'zona',
+    'email',
+    'telefono',
+    'promociones_id',
+    'fecha_visita',
+    'users_id',
   ] as $key){
     if (!isset($input[$key]) || $input[$key] === '') {
       return $this->response->withJson(['error' => true, 'message' => "Falta alguno de los parámetros obligatorios: $key."]);  
     }
   }
 
-  $sql = 'INSERT INTO promociones (name, zona) VALUES (:name, :zona)';
+  $sql = 'INSERT INTO visitas (name, email, telefono, promociones_id, observaciones, fecha_visita, conociste, status, users_id) '.
+         'VALUES (:name, :email, :telefono, :promociones_id, :observaciones, :fecha_visita, :conociste, :status, :users_id)';
   $sth = $this->db->prepare($sql);
   $sth->bindParam('name', $input['name']);
-  $sth->bindParam('zona', $input['zona']);
+  $sth->bindParam('email', $input['email']);
+  $sth->bindParam('telefono', $input['telefono']);
+  $sth->bindParam('promociones_id', $input['promociones_id'], PDO::PARAM_INT);
+  $sth->bindParam('observaciones', $input['observaciones']);
+  $sth->bindParam('fecha_visita', $input['fecha_visita']);
+  $sth->bindParam('conociste', $input['conociste']);
+  $sth->bindParam('status', $input['status']);
+  $sth->bindParam('users_id', $input['users_id'], PDO::PARAM_INT);
   try {
     $sth->execute();
   } catch(Exception $e) {
