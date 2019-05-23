@@ -10,7 +10,7 @@ return function (Request $request, Response $response, array $args) {
   $settings = $this->get('settings');  
 
   // get params or set default.
-  $limit = (int) $request->getQueryParam('limit', $settings['pagination']['limit']);
+  $limit = (int) $request->getQueryParam('limit', 100);
   $query = $request->getQueryParam('query', '');
   $query = "%$query%";
 

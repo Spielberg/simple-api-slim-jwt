@@ -21,7 +21,7 @@ return function (Request $request, Response $response, array $args) {
   $offset = (int) $request->getQueryParam('offset', 0);
 
   // get users detaills
-  $sql = 'SELECT id, name, email, created_at, last_login, active FROM users WHERE deleted = 0 LIMIT :limit OFFSET :offset';
+  $sql = 'SELECT id, name, email, created_at, last_login, active, superuser FROM users WHERE deleted = 0 LIMIT :limit OFFSET :offset';
   $sth = $this->db->prepare($sql);
   $sth->bindParam('limit', $limit, PDO::PARAM_INT);
   $sth->bindParam('offset', $offset, PDO::PARAM_INT);
@@ -33,6 +33,7 @@ return function (Request $request, Response $response, array $args) {
   $total = (int) $this->db->query('SELECT FOUND_ROWS()')->fetchColumn();
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
+    $result['superuser'] = (bool) $result['superuser'] == 1;
     return $result;
   }, $sth->fetchAll());
 
