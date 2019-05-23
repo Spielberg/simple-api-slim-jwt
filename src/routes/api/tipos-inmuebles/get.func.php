@@ -12,18 +12,37 @@ return function (Request $request, Response $response, array $args) {
   // get params or set default.
   $limit = (int) $request->getQueryParam('limit', $settings['pagination']['limit']);
   $offset = (int) $request->getQueryParam('offset', 0);
+  $id = $request->getQueryParam('id', null);
+  $query = $request->getQueryParam('query', null);
 
   // get users detaills
-  $sql = 'SELECT id, name, created_at, active FROM tipos_inmuebles WHERE deleted = 0 LIMIT :limit OFFSET :offset';
-  $sth = $this->db->prepare($sql);
-  $sth->bindParam('limit', $limit, PDO::PARAM_INT);
-  $sth->bindParam('offset', $offset, PDO::PARAM_INT);
+  $params = [
+    [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
+    [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
+  ];
+  $select = 'SELECT id, name, created_at, active FROM tipos_inmuebles WHERE deleted = 0 ';
+  $count = 'SELECT count(*) FROM tipos_inmuebles WHERE deleted = 0 ';
+  if ($id !== null && $id !== '') {
+    $select .= "AND id = :id ";
+    $count  .= 'AND id = ' . $id;
+    $params[] = [ 'key' => 'id', 'var' => $id, 'code' => PDO::PARAM_INT ];
+  }
+  if ($query !== null && $query !== '') {
+    $select .= 'AND name LIKE :query ';
+    $count  .= 'AND name LIKE "%' . $query . '%" ';
+    $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
+  }
+  $select .= 'LIMIT :limit OFFSET :offset';
+  $sth = $this->db->prepare($select);
+  foreach($params as $obj) {
+    $sth->bindParam($obj['key'], $obj['var'], $obj['code']);
+  }
   try {
     $sth->execute();
+    $total = (int) $this->db->query($count)->fetchColumn();
   } catch(Exception $e) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
-  $total = (int) $this->db->query('SELECT FOUND_ROWS()')->fetchColumn();
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
     return $result;

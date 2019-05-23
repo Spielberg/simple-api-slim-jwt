@@ -27,27 +27,25 @@ return function (Request $request, Response $response, array $args) {
     'deleted' => PDO::PARAM_BOOL,
   ];
 
-  $arrQuery = [];
+  $arrInput = [
+    'id' => $input['id'],
+  ];
   $arrValue = [];
   foreach($allowed as $key => $value){
     if (isset($input[$key]) && $input[$key] !== '') {
-      $arrQuery[] = $key;
+      $arrInput[$key] = $input[$key];
       $arrValue[] = "$key = :$key";
     }
   }
-  if(count($arrQuery) === 0) {
+  if(count($arrInput) === 0) {
     return $this->response->withJson(['error' => true, 'message' => 'Ningún parametro para actualizar.']);  
     }
 
   // build quey.
   $sql = 'UPDATE promociones SET ' . implode($arrValue, ', ') . ' WHERE id = :id LIMIT 1';
   $sth = $this->db->prepare($sql);
-  $sth->bindParam('id', $input['id']);
-  foreach($arrQuery as $key) {
-    $sth->bindParam($key, $input[$key], $allowed[$key]);
-  };
   try {
-    $sth->execute();
+    $sth->execute($arrInput);
   } catch(Exception $e) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }

@@ -31,33 +31,28 @@ return function (Request $request, Response $response, array $args) {
     $allowed['deleted'] = PDO::PARAM_BOOL;
   }
 
-  $arrQuery = [];
+  $arrInputs = [
+    'id' => $input['id'],
+  ];
   $arrValue = [];
   foreach($allowed as $w => $a){
     if (isset($input[$w]) && $input[$w] !== '') {
-      $arrQuery[] = $w;
+      $arrInputs[$w] = $w === 'password'
+      ? password_hash($input[$w], PASSWORD_DEFAULT)
+      : $input[$w];
       $arrValue[] = "$w = :$w";
     }
   }
-  if(count($arrQuery) === 0) {
+  if(count($arrInputs) === 0) {
     return $this->response->withJson(['error' => true, 'message' => 'Ningún parametro para actualizar.']);  
     }
+
 
   // build quey.
   $sql = 'UPDATE users SET ' . implode($arrValue, ', ') . ' WHERE id = :id LIMIT 1';
   $sth = $this->db->prepare($sql);
-  $sth->bindParam('id', $input['id'], PDO::PARAM_INT);
-  foreach($arrQuery as $x) {
-    echo $x . "<br />";
-    $val = $x === 'password'
-      ? password_hash($input[$x], PASSWORD_DEFAULT)
-      : $input[$x];
-    //echo $val . "<br />";
-    $sth->bindParam($x, $val, $allowed[$x]);
-  };
-  //die ();
   try {
-    $sth->execute();
+    $sth->execute($arrInputs);
   } catch(Exception $e) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
