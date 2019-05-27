@@ -23,10 +23,11 @@ return function (Request $request, Response $response, array $args) {
     [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
     [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
   ];
-  $select = 'SELECT visitas.*, users.name AS comercial, promociones.name AS promocion '.
+  $select = 'SELECT visitas.*, users.name AS comercial, promo1.name AS promo1, promo2.name AS promo2 '.
             'FROM visitas '.
             'JOIN users ON visitas.users_id = users.id '.
-            'JOIN promociones ON visitas.promociones_id = promociones.id '.
+            'JOIN promociones AS promo1 ON visitas.promociones_id_1 = promo1.id '.
+            'JOIN promociones AS promo2 ON visitas.promociones_id_2 = promo2.id '.
             'WHERE visitas.deleted = 0 ';
   $count = 'SELECT count(*) FROM visitas WHERE deleted = 0 ';
   if ($id !== null && $id !== '') {
@@ -40,8 +41,8 @@ return function (Request $request, Response $response, array $args) {
     $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
   }
   if ($promocion !== 0) {
-    $select .= "AND visitas.promociones_id = :promocion ";
-    $count  .= 'AND visitas.promociones_id = ' . $promocion;
+    $select .= "AND (visitas.promociones_id_1 = :promocion OR visitas.promociones_id_2 = :promocion) ";
+    $count  .= 'AND (visitas.promociones_id_1 = ' . $promocion . ' OR visitas.promociones_id_2 = ' . $promocion . ') ';
     $params[] = [ 'key' => 'promocion', 'var' => $promocion, 'code' => PDO::PARAM_INT ];
   }
   $select .= 'LIMIT :limit OFFSET :offset';

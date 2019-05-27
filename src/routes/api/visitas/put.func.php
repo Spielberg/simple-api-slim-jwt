@@ -22,6 +22,7 @@ return function (Request $request, Response $response, array $args) {
     'name',
     'observaciones',
     'promociones_id',
+    'publicidad',
     'status',
     'telefono',
     'users_id',

@@ -20,8 +20,8 @@ return function (Request $request, Response $response, array $args) {
   // grafica por promociones
   $select = 'SELECT count(*) AS count, promociones.`name` '.
             'FROM visitas '. 
-            'JOIN promociones ON visitas.`promociones_id` = promociones.id '. 
-            'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' GROUP BY visitas.`promociones_id`';
+            'JOIN promociones ON visitas.`promociones_id_1` = promociones.id '. 
+            'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' GROUP BY visitas.`promociones_id_1`';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
   $promociones = array_map(function ($result) {

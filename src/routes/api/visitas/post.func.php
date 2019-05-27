@@ -37,6 +37,7 @@ return function (Request $request, Response $response, array $args) {
   $sth->bindParam('fecha_visita', $input['fecha_visita']);
   $sth->bindParam('conociste', $input['conociste']);
   $sth->bindParam('status', $input['status']);
+  $sth->bindParam('publicidad', $input['publicidad'], PDO::PARAM_INT);
   $sth->bindParam('users_id', $input['users_id'], PDO::PARAM_INT);
   try {
     $sth->execute();
