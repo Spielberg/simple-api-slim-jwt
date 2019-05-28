@@ -52,4 +52,10 @@ return function (App $app) {
     $app->put('/visitas', require __DIR__ . '/routes/api/visitas/put.func.php');
 
   });
+
+    // homepage
+  $app->get('/', function ($request, $response, $args) {
+    return $this->view->render($response, 'index.phtml');
+  });
+
 };
