@@ -22,13 +22,13 @@ return function (Request $request, Response $response, array $args) {
   // get visitas detaills
   $params = [
     [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
-    [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
+    [ 'key' => 'offset', 'var' => (int)$offset * (int)$limit, 'code' => PDO::PARAM_INT ],
   ];
   $select = 'SELECT visitas.*, users.name AS comercial, promo1.name AS promo1, promo2.name AS promo2 '.
             'FROM visitas '.
             'JOIN users ON visitas.users_id = users.id '.
             'JOIN promociones AS promo1 ON visitas.promociones_id_1 = promo1.id '.
-            'JOIN promociones AS promo2 ON visitas.promociones_id_2 = promo2.id '.
+            'LEFT JOIN promociones AS promo2 ON visitas.promociones_id_2 = promo2.id '.
             'WHERE visitas.deleted = 0 ';
   $count = 'SELECT count(*) FROM visitas WHERE deleted = 0 ';
   if ($id !== null && $id !== '') {
