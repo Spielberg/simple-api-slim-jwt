@@ -16,6 +16,7 @@ return function (Request $request, Response $response, array $args) {
   $offset = (int) $request->getQueryParam('offset', 0);
   $id = $request->getQueryParam('id', null);
   $query = $request->getQueryParam('query', null);
+  $telefono = $request->getQueryParam('telefono', null);
   $promocion = (int) $request->getQueryParam('promocion', 0);
 
   // get visitas detaills
@@ -40,12 +41,17 @@ return function (Request $request, Response $response, array $args) {
     $count  .= 'AND ( visitas.name LIKE "%' . $query . '%" OR visitas.email LIKE "%' . $query . '%" OR visitas.telefono LIKE "%' . $query . '%" OR visitas.observaciones LIKE "%' . $query . '%") ';
     $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
   }
+  if ($telefono !== null && $telefono !== '') {
+    $select .= 'AND visitas.telefono LIKE :telefono ';
+    $count  .= 'AND visitas.telefono LIKE "%' . $telefono . '%" ';
+    $params[] = [ 'key' => 'telefono', 'var' => '%' . $telefono . '%', 'code' => PDO::PARAM_STR ];
+  }
   if ($promocion !== 0) {
     $select .= "AND (visitas.promociones_id_1 = :promocion OR visitas.promociones_id_2 = :promocion) ";
     $count  .= 'AND (visitas.promociones_id_1 = ' . $promocion . ' OR visitas.promociones_id_2 = ' . $promocion . ') ';
     $params[] = [ 'key' => 'promocion', 'var' => $promocion, 'code' => PDO::PARAM_INT ];
   }
-  $select .= 'LIMIT :limit OFFSET :offset';
+  $select .= 'ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
   $sth = $this->db->prepare($select);
   foreach($params as $obj) {
     $sth->bindParam($obj['key'], $obj['var'], $obj['code']);

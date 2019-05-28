@@ -46,7 +46,7 @@ return function (App $app) {
     $app->put('/tipos-inmuebles', require __DIR__ . '/routes/api/tipos-inmuebles/put.func.php');
      
     // visitas
-    $app->get('/visitas/telefono', require __DIR__ . '/routes/api/visitas/get-telefono.func.php');
+    $app->get('/visitas/{id}', require __DIR__ . '/routes/api/visitas/get-one.func.php');
     $app->get('/visitas', require __DIR__ . '/routes/api/visitas/get.func.php');
     $app->post('/visitas', require __DIR__ . '/routes/api/visitas/post.func.php');
     $app->put('/visitas', require __DIR__ . '/routes/api/visitas/put.func.php');

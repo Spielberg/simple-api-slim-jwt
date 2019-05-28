@@ -16,20 +16,27 @@ return function (Request $request, Response $response, array $args) {
 
   // allowed.
   $allowed = [
-    'conociste',
-    'email',
-    'fecha_visita',
     'name',
-    'observaciones',
-    'promociones_id',
-    'publicidad',
-    'status',
+    'email',
     'telefono',
+    'promociones_id_1',
+    'promociones_id_2',
+    'fecha_visita',
+    'conociste',
+    'status',
+    'publicidad',
     'users_id',
   ];
 
+  // default promocion 2
   $arrInput = [
     'id' => $input['id'],
+    'promociones_id_2' => 
+      isset($input['promociones_id_2'])
+      && $input['promociones_id_2'] !== ''
+      && ctype_digit((string)$input['promociones_id_2'])
+        ? $input['promociones_id_2']
+        : null
   ];
   $arrValue = [];
   foreach($allowed as $key){
@@ -47,6 +54,18 @@ return function (Request $request, Response $response, array $args) {
   $sth = $this->db->prepare($sql);
   try {
     $sth->execute($arrInput);
+  } catch(Exception $e) {
+    return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+  }
+
+  // now save observaciones
+  $sql = 'INSERT INTO observaciones (visitas_id, text) '.
+         'VALUES (:visitas_id, :text)';
+  $sth = $this->db->prepare($sql);
+  $sth->bindParam('visitas_id', $input['id']);
+  $sth->bindParam('text', $input['observacion']);
+  try {
+    $sth->execute();
   } catch(Exception $e) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
