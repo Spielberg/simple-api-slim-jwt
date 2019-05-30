@@ -37,8 +37,8 @@ return function (Request $request, Response $response, array $args) {
     $params[] = [ 'key' => 'id', 'var' => $id, 'code' => PDO::PARAM_INT ];
   }
   if ($query !== null && $query !== '') {
-    $select .= 'AND ( visitas.name LIKE :query OR visitas.email LIKE :query OR visitas.telefono LIKE :query OR visitas.observaciones LIKE :query) ';
-    $count  .= 'AND ( visitas.name LIKE "%' . $query . '%" OR visitas.email LIKE "%' . $query . '%" OR visitas.telefono LIKE "%' . $query . '%" OR visitas.observaciones LIKE "%' . $query . '%") ';
+    $select .= 'AND ( visitas.name LIKE :query OR visitas.email LIKE :query OR visitas.telefono LIKE :query) ';
+    $count  .= 'AND ( visitas.name LIKE "%' . $query . '%" OR visitas.email LIKE "%' . $query . '%" OR visitas.telefono LIKE "%' . $query . '%") ';
     $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
   }
   if ($telefono !== null && $telefono !== '') {
@@ -63,10 +63,19 @@ return function (Request $request, Response $response, array $args) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
   
+  $results = array_map(function ($result) {
+    $result['active'] = (bool) $result['active'] == 1;
+    $result['id'] = (int) $result['id'];
+    foreach(['name', 'promo1', 'promo1'] as $w) {
+      $result[$w] = utf8_encode($result[$w]);
+    }
+    return $result;
+  }, $sth->fetchAll());
+
   return $this->response->withJson([
     'error' => false,
     'data' => [
-      'results' => $sth->fetchAll(), 
+      'results' => $results, 
       'pagination' => [ 
         'total' => $total, 
         'limit' => $limit, 

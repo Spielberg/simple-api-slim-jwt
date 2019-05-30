@@ -38,7 +38,7 @@ return function (Request $request, Response $response, array $args) {
     $count  .= 'AND telefono LIKE "%' . $telefono . '%") ';
     $params[] = [ 'key' => 'telefono', 'var' => '%' . $telefono . '%', 'code' => PDO::PARAM_STR ];
   }
-  $select .= 'LIMIT :limit OFFSET :offset';
+  $select .= 'ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
   $sth = $this->db->prepare($select);
   foreach($params as $obj) {
     $sth->bindParam($obj['key'], $obj['var'], $obj['code']);
@@ -51,6 +51,10 @@ return function (Request $request, Response $response, array $args) {
   }
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
+    $result['id'] = (int) $result['id'];
+    foreach(['name', 'zona'] as $w) {
+      $result[$w] = utf8_encode($result[$w]);
+    }
     return $result;
   }, $sth->fetchAll());
 

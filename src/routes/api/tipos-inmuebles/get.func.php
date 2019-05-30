@@ -45,6 +45,9 @@ return function (Request $request, Response $response, array $args) {
   }
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
+    foreach(['name'] as $w) {
+      $result[$w] = utf8_encode($result[$w]);
+    }
     return $result;
   }, $sth->fetchAll());
     

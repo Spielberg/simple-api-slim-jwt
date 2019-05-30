@@ -27,6 +27,10 @@ return function (Request $request, Response $response, array $args) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
 
+  foreach(['name', 'promo1', 'promo1'] as $k) {
+    $data[$k] = utf8_encode($data[$k]);
+  }
+
   // prepare data after send
   foreach(['deleted', 'publicidad'] as $k) {
     $data[$k] = $data[$k] === 1;
