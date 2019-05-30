@@ -27,3 +27,7 @@ Run this command in the application directory to run the test suite
 That's it! Now go build something cool.
 
 * Run app:  ww && php -S localhost:8080 -t public public/index.php
+
+## Nuevas versiones de la APP
+Para subir  ueva versión de la APP hacer un build en el proyecto react-gestor-andia y copiar el contenido de la carpeta build dentro de public/
+y el index.html dentro de la carpeta templates
