@@ -66,7 +66,7 @@ return function (Request $request, Response $response, array $args) {
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
     $result['id'] = (int) $result['id'];
-    foreach(['name', 'promo1', 'promo1'] as $w) {
+    foreach(['comercial', 'name', 'promo1', 'promo1'] as $w) {
       $result[$w] = utf8_encode($result[$w]);
     }
     return $result;
