@@ -21,6 +21,8 @@ return function (Request $request, Response $response, array $args) {
     'telefono',
     'promociones_id_1',
     'promociones_id_2',
+    'tipos_inmuebles_1',
+    'tipos_inmuebles_2',
     'fecha_visita',
     'conociste',
     'status',
@@ -36,12 +38,24 @@ return function (Request $request, Response $response, array $args) {
       && $input['promociones_id_2'] !== ''
       && ctype_digit((string)$input['promociones_id_2'])
         ? $input['promociones_id_2']
-        : null
+        : null,
+    'tipos_inmuebles_1' => 
+      isset($input['tipos_inmuebles_1'])
+      && $input['tipos_inmuebles_1'] !== ''
+        ? $input['tipos_inmuebles_1']
+        : [],
+    'tipos_inmuebles_2' => 
+      isset($input['tipos_inmuebles_2'])
+      && $input['tipos_inmuebles_2'] !== ''
+        ? $input['tipos_inmuebles_2']
+        : []
   ];
   $arrValue = [];
   foreach($allowed as $key){
     if (isset($input[$key]) && $input[$key] !== '') {
-      $arrInput[$key] = $input[$key];
+      $arrInput[$key] = $key === 'tipos_inmuebles_1' || $key === 'tipos_inmuebles_2'
+        ? serialize($input[$key])
+        : $input[$key];
       $arrValue[] = "$key = :$key";
     }
   }
@@ -59,17 +73,19 @@ return function (Request $request, Response $response, array $args) {
   }
 
   // now save observaciones
-  $sql = 'INSERT INTO observaciones (visitas_id, text) '.
-         'VALUES (:visitas_id, :text)';
-  $sth = $this->db->prepare($sql);
-  $sth->bindParam('visitas_id', $input['id']);
-  $sth->bindParam('text', $input['observacion']);
-  try {
-    $sth->execute();
-  } catch(Exception $e) {
-    return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+  if ($input['observacion'] !== '') {
+    $sql = 'INSERT INTO observaciones (visitas_id, text) '.
+          'VALUES (:visitas_id, :text)';
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam('visitas_id', $input['id']);
+    $sth->bindParam('text', $input['observacion']);
+    try {
+      $sth->execute();
+    } catch(Exception $e) {
+      return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+    }
   }
-      
+        
   return $this->response->withJson([
     'error' => false,
   ]);

@@ -69,6 +69,9 @@ return function (Request $request, Response $response, array $args) {
     foreach(['comercial', 'name', 'promo1', 'promo1'] as $w) {
       $result[$w] = utf8_encode($result[$w]);
     }
+    foreach(['tipos_inmuebles_1', 'tipos_inmuebles_2'] as $w) {
+      $result[$w] = unserialize($result[$w]);
+    }
     return $result;
   }, $sth->fetchAll());
 

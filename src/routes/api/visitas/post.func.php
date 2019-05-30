@@ -26,13 +26,19 @@ return function (Request $request, Response $response, array $args) {
     }
   }
 
-  // default promocion 2
+  // defaults
   $input['promociones_id_2'] = isset($input['promociones_id_2']) && $input['promociones_id_2'] !== '' && ctype_digit((string)$input['promociones_id_2'])
     ? $input['promociones_id_2']
     : null;
+  $input['tipos_inmuebles_1'] = isset($input['tipos_inmuebles_1']) && $input['tipos_inmuebles_1'] !== '' 
+    ? $input['tipos_inmuebles_1']
+    : [];
+  $input['tipos_inmuebles_2'] = isset($input['tipos_inmuebles_2']) && $input['tipos_inmuebles_2'] !== '' 
+    ? $input['tipos_inmuebles_2']
+    : [];
 
-  $sql = 'INSERT INTO visitas (name, email, telefono, promociones_id_1, promociones_id_2, fecha_visita, conociste, status, publicidad, users_id) '.
-         'VALUES (:name, :email, :telefono, :promociones_id_1, :promociones_id_2, :fecha_visita, :conociste, :status, :publicidad,  :users_id)';
+  $sql = 'INSERT INTO visitas (name, email, telefono, promociones_id_1, promociones_id_2, fecha_visita, conociste, status, publicidad, users_id, tipos_inmuebles_1, tipos_inmuebles_2) '.
+         'VALUES (:name, :email, :telefono, :promociones_id_1, :promociones_id_2, :fecha_visita, :conociste, :status, :publicidad, :users_id, :tipos_inmuebles_1, :tipos_inmuebles_2)';
   $sth = $this->db->prepare($sql);
   $sth->bindParam('name', $input['name']);
   $sth->bindParam('email', $input['email']);
@@ -44,6 +50,8 @@ return function (Request $request, Response $response, array $args) {
   $sth->bindParam('status', $input['status']);
   $sth->bindParam('publicidad', $input['publicidad'], PDO::PARAM_INT);
   $sth->bindParam('users_id', $input['users_id'], PDO::PARAM_INT);
+  $sth->bindParam('tipos_inmuebles_1', serialize($input['tipos_inmuebles_1']));
+  $sth->bindParam('tipos_inmuebles_2', serialize($input['tipos_inmuebles_2']));
   try {
     $sth->execute();
   } catch(Exception $e) {

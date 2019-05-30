@@ -31,6 +31,10 @@ return function (Request $request, Response $response, array $args) {
     $data[$k] = utf8_encode($data[$k]);
   }
 
+  foreach(['tipos_inmuebles_1', 'tipos_inmuebles_2'] as $w) {
+    $data[$w] = unserialize($data[$w]);
+  }
+
   // prepare data after send
   foreach(['deleted', 'publicidad'] as $k) {
     $data[$k] = $data[$k] === 1;

@@ -35,6 +35,7 @@ return function (App $app) {
 
     // promociones
     $app->get('/promociones/zonas', require __DIR__ . '/routes/api/promocion/get-zonas.func.php');
+    $app->get('/promociones/{id}', require __DIR__ . '/routes/api/promocion/get-one.func.php');
     $app->get('/promociones', require __DIR__ . '/routes/api/promocion/get.func.php');
     $app->post('/promociones', require __DIR__ . '/routes/api/promocion/post.func.php');
     $app->put('/promociones', require __DIR__ . '/routes/api/promocion/put.func.php');
