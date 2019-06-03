@@ -30,5 +30,16 @@ return function (App $app) {
       return $pdo;
     };
 
+    // mailjet  
+    $container['mjv3'] = function ($c) {
+      $settings = $c->get('settings')['mailjet'];
+      return new \Mailjet\Client($settings['public_key'], $settings['private_key'], true, ['version' => 'v3'] );
+    };
+
+    $container['mjv31'] = function ($c) {
+      $settings = $c->get('settings')['mailjet'];
+      return new \Mailjet\Client($settings['public_key'], $settings['private_key'], true, ['version' => 'v3.1'] );
+    };
+
     $container['view'] = new \Slim\Views\PhpRenderer(__DIR__.'/../templates/');
 };

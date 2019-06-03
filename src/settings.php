@@ -39,5 +39,10 @@ return [
         'pagination' => [
           'limit' => 10,
         ],
+
+        'mailjet' => [
+          'public_key' => getenv('MJ_APIKEY_PUBLIC'),
+          'private_key' => getenv('MJ_APIKEY_PRIVATE')
+        ],
     ],
 ];

@@ -52,6 +52,10 @@ return function (App $app) {
     $app->post('/visitas', require __DIR__ . '/routes/api/visitas/post.func.php');
     $app->put('/visitas', require __DIR__ . '/routes/api/visitas/put.func.php');
 
+    // mailjet
+    $app->get('/mail/templates', require __DIR__ . '/routes/api/mail/templates.func.php');
+    $app->post('/mail/send', require __DIR__ . '/routes/api/mail/send.func.php');
+
   });
 
     // homepage
