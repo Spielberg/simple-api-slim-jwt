@@ -17,6 +17,8 @@ return function (Request $request, Response $response, array $args) {
   // allowed.
   $allowed = [
     'name',
+    'apellido_1',
+    'apellido_2',
     'email',
     'telefono',
     'promociones_id_1',

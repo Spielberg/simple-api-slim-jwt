@@ -50,6 +50,7 @@ return function (App $app) {
     $app->get('/visitas/{id}', require __DIR__ . '/routes/api/visitas/get-one.func.php');
     $app->get('/visitas', require __DIR__ . '/routes/api/visitas/get.func.php');
     $app->post('/visitas', require __DIR__ . '/routes/api/visitas/post.func.php');
+    $app->delete('/visitas/{id}', require __DIR__ . '/routes/api/visitas/delete.func.php');
     $app->put('/visitas', require __DIR__ . '/routes/api/visitas/put.func.php');
 
     // mailjet

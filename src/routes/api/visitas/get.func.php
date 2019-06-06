@@ -37,8 +37,8 @@ return function (Request $request, Response $response, array $args) {
     $params[] = [ 'key' => 'id', 'var' => $id, 'code' => PDO::PARAM_INT ];
   }
   if ($query !== null && $query !== '') {
-    $select .= 'AND ( visitas.name LIKE :query OR visitas.email LIKE :query OR visitas.telefono LIKE :query) ';
-    $count  .= 'AND ( visitas.name LIKE "%' . $query . '%" OR visitas.email LIKE "%' . $query . '%" OR visitas.telefono LIKE "%' . $query . '%") ';
+    $select .= 'AND ( visitas.name LIKE :query OR visitas.apellido_1 LIKE :query OR visitas.apellido_2 LIKE :query OR visitas.email LIKE :query OR visitas.telefono LIKE :query) ';
+    $count  .= 'AND ( visitas.name LIKE "%' . $query . '%" OR visitas.apellido_1 LIKE "%' . $query . '%" OR visitas.apellido_2 LIKE "%' . $query . '%" OR visitas.email LIKE "%' . $query . '%" OR visitas.telefono LIKE "%' . $query . '%") ';
     $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
   }
   if ($telefono !== null && $telefono !== '') {
@@ -66,9 +66,6 @@ return function (Request $request, Response $response, array $args) {
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
     $result['id'] = (int) $result['id'];
-    foreach(['comercial', 'name', 'promo1', 'promo1'] as $w) {
-      $result[$w] = utf8_encode($result[$w]);
-    }
     foreach(['tipos_inmuebles_1', 'tipos_inmuebles_2'] as $w) {
       $result[$w] = unserialize($result[$w]);
     }

@@ -32,7 +32,7 @@ return function (Request $request, Response $response, array $args) {
     $count  .= 'AND name LIKE "%' . $query . '%" ';
     $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
   }
-  $select .= 'LIMIT :limit OFFSET :offset';
+  $select .= 'ORDER BY sort LIMIT :limit OFFSET :offset';
   $sth = $this->db->prepare($select);
   foreach($params as $obj) {
     $sth->bindParam($obj['key'], $obj['var'], $obj['code']);
