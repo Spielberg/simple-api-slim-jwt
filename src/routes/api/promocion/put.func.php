@@ -59,10 +59,11 @@ return function (Request $request, Response $response, array $args) {
   }
   
   if ($input['inmuebles']) {
-    foreach(array_unique($input['inmuebles']) as $inmuebleId) {
-      $sth = $this->db->prepare('INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id) VALUES (:id, :tipos_inmuebles_id)');
-      $sth->bindParam('id', $input['id']);
-      $sth->bindParam('tipos_inmuebles_id', $inmuebleId);
+    foreach($input['inmuebles'] as $inmuebleId => $cantidad) {
+      $sth = $this->db->prepare('INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id, cantidad) VALUES (:id, :tipos_inmuebles_id, :cantidad)');
+      $sth->bindParam('id', $input['id'], PDO::PARAM_INT);
+      $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
+      $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
       try {
         $sth->execute();
       } catch(Exception $e) {

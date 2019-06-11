@@ -39,10 +39,10 @@ return function (Request $request, Response $response, array $args) {
     return [$result['name'], $result['count']];
   }, $sth->fetchAll());
 
-  // grafica por usuarios
+  // grafica por como nos conociste
   $select = 'SELECT count(*) AS count, conociste '.
   'FROM visitas '. 
-  'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' GROUP BY visitas.`conociste`';
+  'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' AND conociste <> "" GROUP BY visitas.`conociste`';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
   $conociste = array_map(function ($result) {

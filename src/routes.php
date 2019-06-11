@@ -53,6 +53,10 @@ return function (App $app) {
     $app->delete('/visitas/{id}', require __DIR__ . '/routes/api/visitas/delete.func.php');
     $app->put('/visitas', require __DIR__ . '/routes/api/visitas/put.func.php');
 
+    // ventas
+    $app->get('/ventas', require __DIR__ . '/routes/api/ventas/get.func.php');
+    $app->post('/ventas', require __DIR__ . '/routes/api/ventas/post.func.php');
+
     // mailjet
     $app->get('/mail/templates', require __DIR__ . '/routes/api/mail/templates.func.php');
     $app->post('/mail/send', require __DIR__ . '/routes/api/mail/send.func.php');

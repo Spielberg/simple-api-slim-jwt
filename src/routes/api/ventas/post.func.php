@@ -19,18 +19,19 @@ return function (Request $request, Response $response, array $args) {
   // validation.
   $input = $request->getParsedBody();
   foreach([
-    'name',
-    'zona',
+    'promociones_tipos_inmuebles',
+    'visitas_id',
   ] as $key){
     if (!isset($input[$key]) || $input[$key] === '') {
       return $this->response->withJson(['error' => true, 'message' => "Falta alguno de los parámetros obligatorios: $key."]);  
     }
   }
 
-  $sql = 'INSERT INTO promociones (name, zona) VALUES (:name, :zona)';
+  // get users detaills
+  $sql = 'INSERT INTO ventas (promociones_tipos_inmuebles, visitas_id) VALUES (:promociones_tipos_inmuebles, :visitas_id)';
   $sth = $this->db->prepare($sql);
-  $sth->bindParam('name', $input['name']);
-  $sth->bindParam('zona', $input['zona']);
+  $sth->bindParam('promociones_tipos_inmuebles', $input['promociones_tipos_inmuebles']);
+  $sth->bindParam('visitas_id', $input['visitas_id']);
   try {
     $sth->execute();
   } catch(Exception $e) {
@@ -39,21 +40,6 @@ return function (Request $request, Response $response, array $args) {
   
   $id = (int) $this->db->query('SELECT LAST_INSERT_ID()')->fetchColumn();
     
-  // guardamos ahora los inmuebles
-  if ($input['inmuebles']) {
-    foreach($input['inmuebles'] as $inmuebleId => $cantidad) {
-      $sth = $this->db->prepare('INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id, cantidad) VALUES (:id, :tipos_inmuebles_id, :cantidad)');
-      $sth->bindParam('id', $id, PDO::PARAM_INT);
-      $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
-      $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
-      try {
-        $sth->execute();
-      } catch(Exception $e) {
-        return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
-      }
-    }
-  }
-
   return $this->response->withJson([
     'error' => false,
     'data' => [

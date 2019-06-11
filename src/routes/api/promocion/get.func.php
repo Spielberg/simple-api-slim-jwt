@@ -60,14 +60,14 @@ return function (Request $request, Response $response, array $args) {
     $ids = array_map(function ($result) {
       return $result['id'];
     }, $results);  
-    $sql = 'SELECT p.id AS id, tipos_inmuebles.name AS name, tipos_inmuebles.id AS tipoId '.
+    $sql = 'SELECT p.id AS id, tipos_inmuebles.name AS name, promociones_tipos_inmuebles.cantidad AS cantidad, tipos_inmuebles.id AS tipoId '.
           'FROM promociones AS p '.
           'JOIN promociones_tipos_inmuebles ON promociones_tipos_inmuebles.promociones_id = p.id '.
           'JOIN tipos_inmuebles ON promociones_tipos_inmuebles.tipos_inmuebles_id = tipos_inmuebles.id '.
           'WHERE p.id IN ('. implode(', ', $ids) .')';
     $inmuebles = [];
     foreach($this->db->query($sql)->fetchAll() as $inmueble) {
-      $inmuebles[$inmueble['id']][] = ['id' => (int) $inmueble['tipoId'], 'name' => $inmueble['name']];
+      $inmuebles[$inmueble['id']][] = ['id' => (int) $inmueble['tipoId'], 'name' => $inmueble['name'], 'cantidad' => (int) $inmueble['cantidad']];
     }
     foreach($results as $key => $result) {
       $results[$key]['inmuebles'] = $inmuebles[$result['id']];
