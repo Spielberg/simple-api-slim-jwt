@@ -41,13 +41,43 @@ return function (Request $request, Response $response, array $args) {
 
   // grafica por como nos conociste
   $select = 'SELECT count(*) AS count, conociste '.
-  'FROM visitas '. 
-  'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' AND conociste <> "" GROUP BY visitas.`conociste`';
+            'FROM visitas '. 
+            'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' AND conociste <> "" GROUP BY visitas.`conociste`';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
   $conociste = array_map(function ($result) {
   return [$result['conociste'], $result['count']];
   }, $sth->fetchAll());
+
+  // gráfica ventas
+  $select = 'SELECT p.id AS pid, p.name AS pname, pti.`tipos_inmuebles_id`, pti.`cantidad`, ti.`name` AS tiname, COUNT(*) AS vendidas '.
+            'FROM ventas AS v '.
+            'LEFT JOIN promociones_tipos_inmuebles AS pti ON pti.id = v.promociones_tipos_inmuebles '.
+            'LEFT JOIN promociones AS p ON p.id = pti.`promociones_id` '.
+            'LEFT JOIN tipos_inmuebles AS ti ON ti.id = pti.tipos_inmuebles_id '.
+            'WHERE p.`active` = 1 AND p.`home` = 1 GROUP BY pti.id';
+  $sth = $this->db->prepare($select);
+  $sth->execute($params);
+  $ventas = [];
+  foreach($sth->fetchAll() as $row) {
+    if (!isset($ventas[$row['pid']])) {
+      $ventas[$row['pid']] = [
+        'id' => (int) $row['pid'],
+        'pname' => $row['pname'],
+      ];
+    }
+    $ventas[$row['pid']]['inmuebles'][$row['tipos_inmuebles_id']] = [
+      'id' => (int) $row['tipos_inmuebles_id'],
+      'cantidad' => (int) $row['cantidad'],
+      'vendidas' => (int) $row['vendidas'],
+      'name' => $row['tiname'],
+    ];   
+  }
+  $ventas = array_map(function ($venta) {
+    $venta['inmuebles'] = array_values($venta['inmuebles']);
+    return $venta;
+  }, $ventas);
+  $ventas = array_values($ventas);
 
   return $this->response->withJson([
     'error' => false,
@@ -55,6 +85,7 @@ return function (Request $request, Response $response, array $args) {
       'comerciales' => $comerciales,
       'conociste' => $conociste,
       'promociones' => $promociones,
+      'ventas' => $ventas,
     ],
   ]);
 };

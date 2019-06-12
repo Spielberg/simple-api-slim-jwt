@@ -12,7 +12,7 @@ return function (Request $request, Response $response, array $args) {
   $settings = $this->get('settings');  
 
   // get params or set default.
-  $select = 'SELECT `id`, `name`, `zona`, `created_at`, `active` '.
+  $select = 'SELECT `id`, `name`, `zona`, `created_at`, `active`, `home` '.
             'FROM promociones '.
             'WHERE promociones.deleted = 0 AND promociones.id = :id LIMIT 1';
   $sth = $this->db->prepare($select);
@@ -29,7 +29,7 @@ return function (Request $request, Response $response, array $args) {
   }
 
   // prepare data after send
-  foreach(['active'] as $k) {
+  foreach(['active', 'home'] as $k) {
     $data[$k] = $data[$k] === 1;
   };
   

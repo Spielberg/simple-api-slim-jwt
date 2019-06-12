@@ -25,6 +25,7 @@ return function (Request $request, Response $response, array $args) {
     'zona' => PDO::PARAM_STR,
     'active' => PDO::PARAM_BOOL,
     'deleted' => PDO::PARAM_BOOL,
+    'home' => PDO::PARAM_BOOL,
   ];
 
   $arrInput = [

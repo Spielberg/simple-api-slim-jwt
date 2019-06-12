@@ -21,7 +21,7 @@ return function (Request $request, Response $response, array $args) {
     [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
     [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
   ];
-  $select = 'SELECT id, name, zona, created_at, active FROM promociones WHERE deleted = 0 ';
+  $select = 'SELECT id, name, zona, created_at, active, home FROM promociones WHERE deleted = 0 ';
   $count = 'SELECT count(*) FROM promociones WHERE deleted = 0 ';
   if ($id !== null && $id !== '') {
     $select .= "AND id = :id ";
@@ -51,6 +51,7 @@ return function (Request $request, Response $response, array $args) {
   }
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
+    $result['home'] = (bool) $result['home'] == 1;
     $result['id'] = (int) $result['id'];
     return $result;
   }, $sth->fetchAll());
