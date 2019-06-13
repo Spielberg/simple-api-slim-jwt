@@ -34,7 +34,7 @@ return function (Request $request, Response $response, array $args) {
   };
   
   // get observaciones
-  $select = 'SELECT promociones_tipos_inmuebles.id AS _id, p.id AS id, tipos_inmuebles.name AS name, tipos_inmuebles.id AS tipoId '.
+  $select = 'SELECT p.id AS id, tipos_inmuebles.name AS name, tipos_inmuebles.id AS tipoId '.
             'FROM promociones AS p '.
             'JOIN promociones_tipos_inmuebles ON promociones_tipos_inmuebles.promociones_id = p.id '.
             'JOIN tipos_inmuebles ON promociones_tipos_inmuebles.tipos_inmuebles_id = tipos_inmuebles.id '.
@@ -44,7 +44,7 @@ return function (Request $request, Response $response, array $args) {
   $sth->execute();
   $inmuebles = [];
   foreach($sth->fetchAll() as $inmueble) {
-    $data['inmuebles'][] = ['key' => (int) $inmueble['_id'], 'id' => (int) $inmueble['tipoId'], 'name' => utf8_encode($inmueble['name'])];
+    $data['inmuebles'][] = ['id' => (int) $inmueble['tipoId'], 'name' => utf8_encode($inmueble['name'])];
   }
 
   return $this->response->withJson([

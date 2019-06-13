@@ -52,10 +52,10 @@ return function (Request $request, Response $response, array $args) {
   // gráfica ventas
   $select = 'SELECT p.id AS pid, p.name AS pname, pti.`tipos_inmuebles_id`, pti.`cantidad`, ti.`name` AS tiname, COUNT(*) AS vendidas '.
             'FROM ventas AS v '.
-            'LEFT JOIN promociones_tipos_inmuebles AS pti ON pti.id = v.promociones_tipos_inmuebles '.
+            'LEFT JOIN promociones_tipos_inmuebles AS pti ON ( pti.promociones_id = v.promociones_id AND pti.tipos_inmuebles_id = v.tipos_inmuebles_id ) '.
             'LEFT JOIN promociones AS p ON p.id = pti.`promociones_id` '.
             'LEFT JOIN tipos_inmuebles AS ti ON ti.id = pti.tipos_inmuebles_id '.
-            'WHERE p.`active` = 1 AND p.`home` = 1 GROUP BY pti.id';
+            'WHERE p.`active` = 1 AND p.`home` = 1 AND v.`deleted` = 0 GROUP BY pti.promociones_id, pti.tipos_inmuebles_id';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
   $ventas = [];

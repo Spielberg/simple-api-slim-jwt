@@ -27,22 +27,22 @@ return function (Request $request, Response $response, array $args) {
     [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
     [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
   ];
-  $select = 'SELECT v.id, v.created_at AS created_at, p.`name` AS promocion, ti.`name` AS inmueble, vi.`name`, vi.`apellido_1`, vi.`apellido_2` '.
+  $select = 'SELECT v.id, v.created_at AS created_at, p.name AS promocion, ti.name AS inmueble, vi.name, vi.apellido_1, vi.apellido_2 '.
             'FROM ventas AS v '.
-            'JOIN promociones_tipos_inmuebles AS pti ON pti.`id` = v.`promociones_tipos_inmuebles` '.
-            'JOIN promociones AS p ON p.`id` = pti.`promociones_id` '.
-            'JOIN `tipos_inmuebles` AS ti ON ti.id = pti.`tipos_inmuebles_id` '.
-            'JOIN visitas AS vi ON vi.`id` = v.`visitas_id` '.
+            'JOIN promociones_tipos_inmuebles AS pti ON ( pti.promociones_id = v.promociones_id AND pti.tipos_inmuebles_id = v.tipos_inmuebles_id ) '.
+            'JOIN promociones AS p ON p.id = v.promociones_id '.
+            'JOIN tipos_inmuebles AS ti ON ti.id = v.tipos_inmuebles_id '.
+            'JOIN visitas AS vi ON vi.id = v.visitas_id '.
             'WHERE v.deleted = 0 ';
   $count = 'SELECT count(*) FROM ventas AS v WHERE v.deleted = 0 ';
   if ($promocionId !== null && $promocionId !== '') {
-    $select .= "AND pti.`promociones_id` = :promocionId ";
-    $count  .= 'AND pti.`promociones_id` = ' . $promocionId;
+    $select .= "AND v.promociones_id = :promocionId ";
+    $count  .= 'AND v.promociones_id = ' . $promocionId;
     $params[] = [ 'key' => 'promocionId', 'var' => $promocionId, 'code' => PDO::PARAM_INT ];
   }
   if ($query !== null && $query !== '') {
-    $select .= 'AND ( p.`name` LIKE :query OR ti.`name` LIKE :query OR vi.`name` LIKE :query) ';
-    $count  .= 'AND ( p.`name` LIKE "%' . $query . '%" OR ti.`name` LIKE "%' . $query . '%" OR vi.`name` LIKE "%' . $query .'%") ';
+    $select .= 'AND ( p.name LIKE :query OR ti.name LIKE :query OR vi.name LIKE :query) ';
+    $count  .= 'AND ( p.name LIKE "%' . $query . '%" OR ti.name LIKE "%' . $query . '%" OR vi.name LIKE "%' . $query .'%") ';
     $params[] = [ 'key' => 'query', 'var' => '%' . $query . '%', 'code' => PDO::PARAM_STR ];
   }
   $select .= 'LIMIT :limit OFFSET :offset';

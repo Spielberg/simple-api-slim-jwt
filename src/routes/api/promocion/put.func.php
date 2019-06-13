@@ -52,23 +52,30 @@ return function (Request $request, Response $response, array $args) {
   }
 
   // guardamos ahora los inmuebles
-  $sql = 'DELETE FROM `promociones_tipos_inmuebles` WHERE `promociones_id` = ' . (int) $input['id'];
-  try {
-    $this->db->query($sql)->execute();
-  } catch(Exception $e) {
-    return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
-  }
-  
   if ($input['inmuebles']) {
     foreach($input['inmuebles'] as $inmuebleId => $cantidad) {
-      $sth = $this->db->prepare('INSERT INTO promociones_tipos_inmuebles (promociones_id, tipos_inmuebles_id, cantidad) VALUES (:id, :tipos_inmuebles_id, :cantidad)');
-      $sth->bindParam('id', $input['id'], PDO::PARAM_INT);
-      $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
-      $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
-      try {
-        $sth->execute();
-      } catch(Exception $e) {
-        return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+      if ($cantidad < 0) {
+        $sql = 'DELETE FROM `promociones_tipos_inmuebles` '.
+               'WHERE `promociones_id` = ' . (int) $input['id'] . ' '.
+               'AND tipos_inmuebles_id = ' . (int) $inmuebleId . ' LIMIT 1';
+        try {
+          $this->db->query($sql)->execute();
+        } catch(Exception $e) {
+          return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+        }
+      } else {
+        $sql = 'INSERT INTO promociones_tipos_inmuebles ' .
+             '(promociones_id, tipos_inmuebles_id, cantidad) VALUES (:id, :tipos_inmuebles_id, :cantidad) '.
+             ' ON DUPLICATE KEY UPDATE cantidad = :cantidad';
+        $sth = $this->db->prepare($sql);
+        $sth->bindParam('id', $input['id'], PDO::PARAM_INT);
+        $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
+        $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
+        try {
+          $sth->execute();
+        } catch(Exception $e) {
+          return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+        }
       }
     }
   }

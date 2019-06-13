@@ -19,7 +19,8 @@ return function (Request $request, Response $response, array $args) {
   // validation.
   $input = $request->getParsedBody();
   foreach([
-    'promociones_tipos_inmuebles',
+    'tipos_inmuebles_id',
+    'promociones_id',
     'visitas_id',
   ] as $key){
     if (!isset($input[$key]) || $input[$key] === '') {
@@ -28,9 +29,10 @@ return function (Request $request, Response $response, array $args) {
   }
 
   // get users detaills
-  $sql = 'INSERT INTO ventas (promociones_tipos_inmuebles, visitas_id) VALUES (:promociones_tipos_inmuebles, :visitas_id)';
+  $sql = 'INSERT INTO ventas (tipos_inmuebles_id, promociones_id, visitas_id) VALUES (:tipos_inmuebles_id, :promociones_id, :visitas_id)';
   $sth = $this->db->prepare($sql);
-  $sth->bindParam('promociones_tipos_inmuebles', $input['promociones_tipos_inmuebles']);
+  $sth->bindParam('tipos_inmuebles_id', $input['tipos_inmuebles_id']);
+  $sth->bindParam('promociones_id', $input['promociones_id']);
   $sth->bindParam('visitas_id', $input['visitas_id']);
   try {
     $sth->execute();
