@@ -15,7 +15,7 @@ return function (Request $request, Response $response, array $args) {
     'error' => !$rtn->success(),
     'data' => $rtn->success()
       ? array_map(function ($result) {
-          return [$result['ID'] => $result['Name']];
+          return ['id' => $result['ID'], 'value' => $result['Name']];
         }, $rtn->getData())
       : [],
   ]);

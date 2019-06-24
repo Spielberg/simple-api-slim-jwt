@@ -29,9 +29,6 @@ return function (Request $request, Response $response, array $args) {
         [
             'To' => [
                 [
-                    'Email' => $input['to'],
-                ],
-                [
                   'Email' => 'javier.sanchezostiz@gmail.com',
                 ]
             ],
@@ -40,6 +37,10 @@ return function (Request $request, Response $response, array $args) {
         ]
     ]
   ];
+  foreach($input['to'] as $mail){
+    //$body['Messages'][0]['To'][] = ['Email' => $mail];
+  }
+
   $rtn = $this->mjv31->post(Resources::$Email, ['body' => $body]);
   return $this->response->withJson([
     'error' => !$rtn->success(),
