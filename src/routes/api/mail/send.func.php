@@ -27,6 +27,10 @@ return function (Request $request, Response $response, array $args) {
   $body = [
     'Messages' => [
         [
+            'From' => [
+                'Email' => 'construcciones.andia.noreply@gmail.com',
+                'Name' => 'Construcciones Andia',
+            ],
             'To' => [
                 [
                   'Email' => 'javier.sanchezostiz@gmail.com',
