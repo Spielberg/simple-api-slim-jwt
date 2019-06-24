@@ -33,7 +33,7 @@ return function (Request $request, Response $response, array $args) {
             ],
             'To' => [
                 [
-                  'Email' => 'javier.sanchezostiz@gmail.com',
+                  'Email' => 'pablo@artworks.es',
                 ]
             ],
             'TemplateID' => (int) $input['template'],
