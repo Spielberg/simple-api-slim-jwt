@@ -9,12 +9,16 @@ return function (Request $request, Response $response, array $args) {
   $where  = [];
   $params = [];
   if (!is_null($request->getQueryParam('since', null))) {
-    $where[]  = "AND visitas.created_at >= :since";
+    $where[]  = "AND visitas.created_at >= :since ";
     $params['since'] = $request->getQueryParam('since', null);
   }
   if (!is_null($request->getQueryParam('until', null))) {
-    $where[] = "AND visitas.created_at <= :until";
+    $where[] = "AND visitas.created_at <= :until ";
     $params['until'] = $request->getQueryParam('until', null);
+  }
+  if (!is_null($request->getQueryParam('promocionId', null))) {
+    $where[]  = "AND (visitas.promociones_id_1 = :promocionId OR visitas.promociones_id_2 = :promocionId) ";
+    $params['promocionId'] = $request->getQueryParam('promocionId', null);
   }
 
   // grafica por promociones
