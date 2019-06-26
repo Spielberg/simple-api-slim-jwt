@@ -18,6 +18,7 @@ return function (Request $request, Response $response, array $args) {
   $query = $request->getQueryParam('query', null);
   $telefono = $request->getQueryParam('telefono', null);
   $promocion = (int) $request->getQueryParam('promocion', 0);
+  $status = $request->getQueryParam('status', null);
 
   // get visitas detaills
   $params = [
@@ -51,7 +52,15 @@ return function (Request $request, Response $response, array $args) {
     $count  .= 'AND (visitas.promociones_id_1 = ' . $promocion . ' OR visitas.promociones_id_2 = ' . $promocion . ') ';
     $params[] = [ 'key' => 'promocion', 'var' => $promocion, 'code' => PDO::PARAM_INT ];
   }
+  if ($status !== null && $status !== '') {
+    $select .= "AND visitas.status = :status ";
+    $count  .= 'AND visitas.status = "' . $status . '" ';
+    $params[] = [ 'key' => 'status', 'var' => $status, 'code' => PDO::PARAM_STR ];
+  }
   $select .= 'ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
+  //print_r($select);
+  //print_r($count);
+  //die();
   $sth = $this->db->prepare($select);
   foreach($params as $obj) {
     $sth->bindParam($obj['key'], $obj['var'], $obj['code']);
