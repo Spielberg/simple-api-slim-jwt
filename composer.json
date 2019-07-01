@@ -15,6 +15,7 @@
         "php": ">=5.6",
         "mailjet/mailjet-apiv3-php": "^1.4",
         "monolog/monolog": "^1.17",
+        "phpoffice/phpspreadsheet": "^1.8",
         "slim/php-view": "^2.0",
         "slim/slim": "^3.1",
         "tuupola/slim-jwt-auth": "^3.3",
