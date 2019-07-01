@@ -28,6 +28,9 @@ return function (App $app) {
     // home
     $app->get('/home', require __DIR__ . '/routes/api/home/get.func.php');
     
+    // excel
+    $app->get('/excel', require __DIR__ . '/routes/api/excel/get.func.php');
+
     // users
     $app->get('/users', require __DIR__ . '/routes/api/user/get.func.php');
     $app->post('/users', require __DIR__ . '/routes/api/user/post.func.php');
