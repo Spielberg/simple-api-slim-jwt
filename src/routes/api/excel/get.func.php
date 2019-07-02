@@ -121,7 +121,9 @@ return function (Request $request, Response $response, array $args) {
   }
   
   $writer = new Xlsx($spreadsheet);
+  
   header('Content-Type: application/vnd.ms-excel');
-  header('Content-Disposition: attachment; filename="file.xlsx"');
+  header('Content-Disposition: attachment; filename="visitas.xlsx"');
+  header('Accept: application/vnd.ms-excel');
   $writer->save("php://output");
 };
