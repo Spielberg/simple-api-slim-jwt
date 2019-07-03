@@ -42,7 +42,7 @@ return function (Request $request, Response $response, array $args) {
     ]
   ];
   foreach($input['to'] as $mail){
-    //$body['Messages'][0]['To'][] = ['Email' => $mail];
+    $body['Messages'][0]['To'][] = ['Email' => $mail];
   }
 
   $rtn = $this->mjv31->post(Resources::$Email, ['body' => $body]);
