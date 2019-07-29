@@ -90,5 +90,8 @@ return function (Request $request, Response $response, array $args) {
         
   return $this->response->withJson([
     'error' => false,
+    'data' => [
+      'id' => $input['id'], 
+    ],
   ]);
 };

@@ -58,10 +58,12 @@ return function (App $app) {
 
     // ventas
     $app->get('/ventas', require __DIR__ . '/routes/api/ventas/get.func.php');
+    $app->delete('/ventas/{id}', require __DIR__ . '/routes/api/ventas/delete.func.php');
     $app->post('/ventas', require __DIR__ . '/routes/api/ventas/post.func.php');
 
     // mailjet
     $app->get('/mail/templates', require __DIR__ . '/routes/api/mail/templates.func.php');
+    $app->post('/mail/newsletter', require __DIR__ . '/routes/api/mail/newsletter.func.php');
     $app->post('/mail/send', require __DIR__ . '/routes/api/mail/send.func.php');
 
   });
