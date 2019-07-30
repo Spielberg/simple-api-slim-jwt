@@ -51,8 +51,8 @@ return function (Request $request, Response $response, array $args) {
     ]
   ];
 
-  if (false) {
-    //$rtn = $this->mjv31->post(Resources::$Email, ['body' => $body]);
+  if (true) {
+    $rtn = $this->mjv31->post(Resources::$Email, ['body' => $body]);
     return $this->response->withJson([
       'error' => !$rtn->success(),
     ]);
