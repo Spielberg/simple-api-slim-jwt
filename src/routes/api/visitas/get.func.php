@@ -12,13 +12,15 @@ return function (Request $request, Response $response, array $args) {
   $settings = $this->get('settings');  
 
   // get params or set default.
+  $id = $request->getQueryParam('id', null);
   $limit = (int) $request->getQueryParam('limit', $settings['pagination']['limit']);
   $offset = (int) $request->getQueryParam('offset', 0);
-  $id = $request->getQueryParam('id', null);
-  $query = $request->getQueryParam('query', null);
-  $telefono = $request->getQueryParam('telefono', null);
   $promocion = (int) $request->getQueryParam('promocion', 0);
+  $query = $request->getQueryParam('query', null);
+  $since = $request->getQueryParam('since', null);
   $status = $request->getQueryParam('status', null);
+  $telefono = $request->getQueryParam('telefono', null);
+  $until = $request->getQueryParam('until', null);
 
   // get visitas detaills
   $params = [
@@ -57,10 +59,17 @@ return function (Request $request, Response $response, array $args) {
     $count  .= 'AND visitas.status = "' . $status . '" ';
     $params[] = [ 'key' => 'status', 'var' => $status, 'code' => PDO::PARAM_STR ];
   }
+  if ($since !== null && $since !== '') {
+    $select .= "AND visitas.fecha_visita >= :since ";
+    $count  .= 'AND visitas.fecha_visita >= "' . $since . '" ';
+    $params[] = [ 'key' => 'since', 'var' => $since, 'code' => PDO::PARAM_STR ];
+  }
+  if ($until !== null && $until !== '') {
+    $select .= "AND visitas.fecha_visita <= :until ";
+    $count  .= 'AND visitas.fecha_visita <= "' . $until . '" ';
+    $params[] = [ 'key' => 'until', 'var' => $until, 'code' => PDO::PARAM_STR ];
+  }
   $select .= 'ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
-  //print_r($select);
-  //print_r($count);
-  //die();
   $sth = $this->db->prepare($select);
   foreach($params as $obj) {
     $sth->bindParam($obj['key'], $obj['var'], $obj['code']);
@@ -74,6 +83,7 @@ return function (Request $request, Response $response, array $args) {
   
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
+    $result['publicidad'] = (bool) $result['publicidad'] == 1;
     $result['id'] = (int) $result['id'];
     foreach(['tipos_inmuebles_1', 'tipos_inmuebles_2'] as $w) {
       $result[$w] = unserialize($result[$w]);
