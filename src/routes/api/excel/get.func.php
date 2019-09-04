@@ -44,7 +44,7 @@ return function (Request $request, Response $response, array $args) {
                   'YEAR(visitas.fecha_visita) AS `año visita`, '.
                   'visitas.conociste AS `cómo nos conociste`, '.
                   'visitas.status AS `estado`, '.
-                  'visitas.publicidad AS `desea recibir publicidad`, '.
+                  'visitas.contactado AS `cómo desea ser contactado`, '.
                   'visitas.tipos_inmuebles_1 AS `tipos de inmuebles I`, '.
                   'visitas.tipos_inmuebles_2 AS `tipos de inmuebles II`, '.
                   'users.name AS comercial, '.

@@ -40,8 +40,8 @@ return function (Request $request, Response $response, array $args) {
     ? $input['apellido_2']
     : '';
 
-  $sql = 'INSERT INTO visitas (name, apellido_1, apellido_2, email, telefono, promociones_id_1, promociones_id_2, fecha_visita, conociste, status, publicidad, users_id, tipos_inmuebles_1, tipos_inmuebles_2) '.
-         'VALUES (:name, :apellido_1, :apellido_2, :email, :telefono, :promociones_id_1, :promociones_id_2, :fecha_visita, :conociste, :status, :publicidad, :users_id, :tipos_inmuebles_1, :tipos_inmuebles_2)';
+  $sql = 'INSERT INTO visitas (name, apellido_1, apellido_2, email, telefono, promociones_id_1, promociones_id_2, fecha_visita, conociste, status, contactado, users_id, tipos_inmuebles_1, tipos_inmuebles_2) '.
+         'VALUES (:name, :apellido_1, :apellido_2, :email, :telefono, :promociones_id_1, :promociones_id_2, :fecha_visita, :conociste, :status, :contactado, :users_id, :tipos_inmuebles_1, :tipos_inmuebles_2)';
   $sth = $this->db->prepare($sql);
   $sth->bindParam('name', $input['name']);
   $sth->bindParam('apellido_1', $input['apellido_1']);
@@ -53,7 +53,7 @@ return function (Request $request, Response $response, array $args) {
   $sth->bindParam('fecha_visita', $input['fecha_visita']);
   $sth->bindParam('conociste', $input['conociste']);
   $sth->bindParam('status', $input['status']);
-  $sth->bindParam('publicidad', $input['publicidad'], PDO::PARAM_INT);
+  $sth->bindParam('contactado', $input['contactado']);
   $sth->bindParam('users_id', $input['users_id'], PDO::PARAM_INT);
   $sth->bindParam('tipos_inmuebles_1', serialize($input['tipos_inmuebles_1']));
   $sth->bindParam('tipos_inmuebles_2', serialize($input['tipos_inmuebles_2']));

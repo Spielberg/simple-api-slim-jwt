@@ -83,7 +83,7 @@ return function (Request $request, Response $response, array $args) {
   
   $results = array_map(function ($result) {
     $result['active'] = (bool) $result['active'] == 1;
-    $result['publicidad'] = (bool) $result['publicidad'] == 1;
+    $result['publicidad'] = $result['contactado'] !== 'no';
     $result['id'] = (int) $result['id'];
     foreach(['tipos_inmuebles_1', 'tipos_inmuebles_2'] as $w) {
       $result[$w] = unserialize($result[$w]);

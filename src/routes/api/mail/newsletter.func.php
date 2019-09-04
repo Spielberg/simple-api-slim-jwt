@@ -26,7 +26,7 @@ return function (Request $request, Response $response, array $args) {
   // get all emails
   $select = 'SELECT ANY_VALUE(CONCAT(`name`, " ", `apellido_1`, " ",  `apellido_2`)) AS `Name`, LOWER(email) AS Email '.
             'FROM visitas '. 
-            'WHERE deleted = 0 AND publicidad = 1 AND email <> "notiene@gmail.com" '.
+            'WHERE deleted = 0 AND contactado <> "no" AND email <> "notiene@gmail.com" '.
             'GROUP BY email';
   $sth = $this->db->prepare($select);
   $sth->execute();

@@ -28,7 +28,7 @@ return function (Request $request, Response $response, array $args) {
     'fecha_visita',
     'conociste',
     'status',
-    'publicidad',
+    'contactado',
     'users_id',
   ];
 

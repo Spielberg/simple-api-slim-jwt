@@ -33,8 +33,11 @@ return function (Request $request, Response $response, array $args) {
     $data[$w] = unserialize($data[$w]);
   }
 
+  // publicidad
+  $data['publicidad'] = $data['contactado'] !== 'no';
+
   // prepare data after send
-  foreach(['deleted', 'publicidad'] as $k) {
+  foreach(['deleted'] as $k) {
     $data[$k] = $data[$k] === 1;
   };
   foreach(['id', 'promociones_id_1', 'promociones_id_2', 'users_id'] as $k) {
