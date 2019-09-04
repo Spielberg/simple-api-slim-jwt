@@ -40,6 +40,8 @@ return function (Request $request, Response $response, array $args) {
                   'visitas.created_at AS `fecha de creación`, '.
                   'visitas.updated_at AS `fecha última modificación`, '.
                   'visitas.fecha_visita AS `fecha visita`, '.
+                  'MONTH(visitas.fecha_visita) AS `mes visita`, '.
+                  'YEAR(visitas.fecha_visita) AS `año visita`, '.
                   'visitas.conociste AS `cómo nos conociste`, '.
                   'visitas.status AS `estado`, '.
                   'visitas.publicidad AS `desea recibir publicidad`, '.
