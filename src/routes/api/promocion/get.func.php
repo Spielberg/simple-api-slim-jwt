@@ -12,6 +12,7 @@ return function (Request $request, Response $response, array $args) {
   // get params or set default.
   $limit = (int) $request->getQueryParam('limit', $settings['pagination']['limit']);
   $offset = (int) $request->getQueryParam('offset', 0);
+  $home = (int) $request->getQueryParam('home', 0);
   $id = $request->getQueryParam('id', null);
   $query = $request->getQueryParam('query', null);
   $telefono = $request->getQueryParam('telefono', null);
@@ -37,6 +38,10 @@ return function (Request $request, Response $response, array $args) {
     $select .= 'AND telefono LIKE :telefono ';
     $count  .= 'AND telefono LIKE "%' . $telefono . '%") ';
     $params[] = [ 'key' => 'telefono', 'var' => '%' . $telefono . '%', 'code' => PDO::PARAM_STR ];
+  }
+  if ($home !== 0) {
+    $select .= 'AND home = 1 ';
+    $count  .= 'AND home = 1 ';
   }
   $select .= 'ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
   $sth = $this->db->prepare($select);

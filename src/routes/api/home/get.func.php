@@ -17,7 +17,7 @@ return function (Request $request, Response $response, array $args) {
     $params['until'] = $request->getQueryParam('until', null);
   }
   if (!is_null($request->getQueryParam('promocionId', null))) {
-    $where[]  = "AND (visitas.promociones_id_1 = :promocionId OR visitas.promociones_id_2 = :promocionId) ";
+    $where[]  = "AND visitas.promociones_id_1 = :promocionId ";
     $params['promocionId'] = $request->getQueryParam('promocionId', null);
   }
 
@@ -25,35 +25,62 @@ return function (Request $request, Response $response, array $args) {
   $select = 'SELECT count(*) AS count, promociones.`name` '.
             'FROM visitas '. 
             'JOIN promociones ON visitas.`promociones_id_1` = promociones.id '. 
-            'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' GROUP BY visitas.`promociones_id_1`';
+            'WHERE visitas.`deleted` = 0 AND promociones.home = 1 ' . join($where, '') . ' GROUP BY visitas.`promociones_id_1`';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
   $promociones = array_map(function ($result) {
     return [$result['name'], $result['count']];
   }, $sth->fetchAll());
   
-  // grafica por usuarios
+  // grafica por comerciale
+  /*
   $select = 'SELECT count(*) AS count, users.`name` '.
             'FROM visitas '. 
-            'JOIN users ON visitas.`users_id` = users.id '. 
-            'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' GROUP BY visitas.`users_id`';
+            'JOIN users ON visitas.`users_id` = users.id '.
+            'JOIN promociones ON visitas.`promociones_id_1` = promociones.id '.  
+            'WHERE visitas.`deleted` = 0 AND promociones.home = 1 ' . join($where, '') . ' GROUP BY visitas.`users_id`';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
   $comerciales = array_map(function ($result) {
     return [$result['name'], $result['count']];
   }, $sth->fetchAll());
+  */
 
   // grafica por como nos conociste
   $select = 'SELECT count(*) AS count, conociste '.
             'FROM visitas '. 
-            'WHERE visitas.`deleted` = 0 ' . join($where, '') . ' AND conociste <> "" GROUP BY visitas.`conociste`';
+            'JOIN promociones ON visitas.`promociones_id_1` = promociones.id '.  
+            'WHERE visitas.`deleted` = 0 AND promociones.home = 1 ' . join($where, '') . ' AND conociste <> "" GROUP BY visitas.`conociste`';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
   $conociste = array_map(function ($result) {
   return [$result['conociste'], $result['count']];
   }, $sth->fetchAll());
 
+  // gràfica resumen de ventas
+  if (!is_null($request->getQueryParam('promocionId', null))) {
+    $select = 'SELECT COUNT(*) AS `reservadas`, '.
+                '(SELECT SUM(`cantidad`) FROM `promociones_tipos_inmuebles` WHERE `promociones_id` = :promocionId) AS `totales`, '.
+                '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `promociones_id` = :promocionId) AS `vendidas` '.
+              'FROM `visitas` '.
+              'WHERE `status` = "reserva" AND `promociones_id_1` = :promocionId ';
+  } else {
+    $select = 'SELECT COUNT(*) AS `reservadas`, '.
+	              '(SELECT SUM(`cantidad`) FROM `promociones_tipos_inmuebles`) AS `totales`, '.
+	              '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0) AS `vendidas` '.
+              'FROM `visitas` '.
+              'WHERE `status` = "reserva"';
+  }
+  $sth = $this->db->prepare($select);
+  $sth->execute($params);
+  $count = (array) $sth->fetchObject();
+  $counts = [];
+  foreach(['reservadas', 'totales', 'vendidas'] as $k) {
+    $counts[] = [$k, (int) $count[$k]];
+  }
+
   // gráfica ventas
+  /*
   $select = 'SELECT p.id AS pid, p.name AS pname, pti.`tipos_inmuebles_id`, pti.`cantidad`, ti.`name` AS tiname, COUNT(*) AS vendidas '.
             'FROM ventas AS v '.
             'LEFT JOIN promociones_tipos_inmuebles AS pti ON ( pti.promociones_id = v.promociones_id AND pti.tipos_inmuebles_id = v.tipos_inmuebles_id ) '.
@@ -82,14 +109,16 @@ return function (Request $request, Response $response, array $args) {
     return $venta;
   }, $ventas);
   $ventas = array_values($ventas);
+  */
 
   return $this->response->withJson([
     'error' => false,
     'data' => [
-      'comerciales' => $comerciales,
+      //'comerciales' => $comerciales,
+      'counts' => $counts,
       'conociste' => $conociste,
       'promociones' => $promociones,
-      'ventas' => $ventas,
+      //'ventas' => $ventas,
     ],
   ]);
 };
