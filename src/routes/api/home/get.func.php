@@ -75,9 +75,12 @@ return function (Request $request, Response $response, array $args) {
   $sth->execute($params);
   $count = (array) $sth->fetchObject();
   $counts = [];
-  foreach(['reservadas', 'totales', 'vendidas'] as $k) {
-    $counts[] = [$k, (int) $count[$k]];
-  }
+  $counts = [
+    ['reservadas', (int) $count['reservadas']],
+    //['totales', (int) $count['totales']],
+    ['vendidas', (int) $count['vendidas']],
+    ['libres', (int) $count['totales'] - (int) $count['reservadas'] -(int) $count['vendidas']],
+  ];
 
   // gráfica ventas
   /*
