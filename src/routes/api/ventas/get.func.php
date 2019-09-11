@@ -25,7 +25,7 @@ return function (Request $request, Response $response, array $args) {
   // get users detaills
   $params = [
     [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
-    [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
+    [ 'key' => 'offset', 'var' => $offset * $limit, 'code' => PDO::PARAM_INT ],
   ];
   $select = 'SELECT v.id, v.created_at AS created_at, p.name AS promocion, ti.name AS inmueble, vi.name, vi.apellido_1, vi.apellido_2 '.
             'FROM ventas AS v '.

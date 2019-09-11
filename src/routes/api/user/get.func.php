@@ -25,7 +25,7 @@ return function (Request $request, Response $response, array $args) {
   // get users detaills
   $params = [
     [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
-    [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
+    [ 'key' => 'offset', 'var' => $offset * $limit, 'code' => PDO::PARAM_INT ],
   ];
   $select = 'SELECT id, name, email, created_at, last_login, active, superuser FROM users WHERE deleted = 0 ';
   $count = 'SELECT count(*) FROM users WHERE deleted = 0 ';

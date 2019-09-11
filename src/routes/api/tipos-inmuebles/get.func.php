@@ -18,7 +18,7 @@ return function (Request $request, Response $response, array $args) {
   // get users detaills
   $params = [
     [ 'key' => 'limit', 'var' => $limit, 'code' => PDO::PARAM_INT ],
-    [ 'key' => 'offset', 'var' => $offset, 'code' => PDO::PARAM_INT ],
+    [ 'key' => 'offset', 'var' => $offset * $limit, 'code' => PDO::PARAM_INT ],
   ];
   $select = 'SELECT id, name, created_at, active FROM tipos_inmuebles WHERE deleted = 0 ';
   $count = 'SELECT count(*) FROM tipos_inmuebles WHERE deleted = 0 ';
