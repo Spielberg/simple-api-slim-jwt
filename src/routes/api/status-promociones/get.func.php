@@ -20,12 +20,32 @@ return function (Request $request, Response $response, array $args) {
     $params['year'] = $year;
   }
 
+  // detalles de las reservas
+  $select = 'SELECT COUNT(*) AS `ventas`, MONTH(`ventas`.`created_at`) as `month`, '.
+            'YEAR(`ventas`.`created_at`) as `year`, `ventas`.`tipos_inmuebles_id`, `promociones`.`id` AS `promocion_id` '.
+            'FROM `ventas` '.
+            'LEFT JOIN `promociones` ON `promociones`.`id` = `ventas`.`promociones_id` '.
+            'WHERE `ventas`.`deleted` = 0 AND ' . ( count($where) ? join($where, ' AND ') : '1' ) . ' '.
+            'AND `ventas`.`reserva` = 1 '.
+            'AND `promociones`.`deleted` = 0 AND `promociones`.`home` = 1 '.
+            'GROUP BY `promociones`.`id`, `month`, `year`, `ventas`.`tipos_inmuebles_id`';
+  $sth = $this->db->prepare($select);
+  $sth->execute($params);
+  $reservasByMonth = [];
+  foreach($sth->fetchAll() as $row) {
+    if (!isset($reservasByMonth[$row['promocion_id']])) {
+      $reservasByMonth[$row['promocion_id']] = [];
+    }
+    $reservasByMonth[$row['promocion_id']][$row['year']][$row['month']][$row['tipos_inmuebles_id']] = (int) $row['ventas'];
+  }
+
   // detalles de las ventas
   $select = 'SELECT COUNT(*) AS `ventas`, MONTH(`ventas`.`created_at`) as `month`, '.
             'YEAR(`ventas`.`created_at`) as `year`, `ventas`.`tipos_inmuebles_id`, `promociones`.`id` AS `promocion_id` '.
             'FROM `ventas` '.
             'LEFT JOIN `promociones` ON `promociones`.`id` = `ventas`.`promociones_id` '.
             'WHERE `ventas`.`deleted` = 0 AND ' . ( count($where) ? join($where, ' AND ') : '1' ) . ' '.
+            'AND `ventas`.`reserva` = 0 '.
             'AND `promociones`.`deleted` = 0 AND `promociones`.`home` = 1 '.
             'GROUP BY `promociones`.`id`, `month`, `year`, `ventas`.`tipos_inmuebles_id`';
   $sth = $this->db->prepare($select);
@@ -42,6 +62,7 @@ return function (Request $request, Response $response, array $args) {
   $select = 'SELECT COUNT(*) AS ventas, `promociones_id`, `tipos_inmuebles_id` '.
             'FROM `ventas` '.
             'WHERE `deleted` = 0 AND ' . ( count($where) ? join($where, ' AND ') : '1' ) . ' '.
+            'AND `ventas`.`reserva` = 0 '.
             'GROUP BY `promociones_id`, `tipos_inmuebles_id`';
   $sth = $this->db->prepare($select);
   $sth->execute($params);
@@ -51,6 +72,22 @@ return function (Request $request, Response $response, array $args) {
       $ventas[$row['promociones_id']] = [];
     }
     $ventas[$row['promociones_id']][$row['tipos_inmuebles_id']] = (int)$row['ventas'];
+  }
+
+  // detalles reservas
+  $select = 'SELECT COUNT(*) AS ventas, `promociones_id`, `tipos_inmuebles_id` '.
+            'FROM `ventas` '.
+            'WHERE `deleted` = 0 AND ' . ( count($where) ? join($where, ' AND ') : '1' ) . ' '.
+            'AND `ventas`.`reserva` = 1 '.
+            'GROUP BY `promociones_id`, `tipos_inmuebles_id`';
+  $sth = $this->db->prepare($select);
+  $sth->execute($params);
+  $reservas = [];
+  foreach($sth->fetchAll() as $row) {
+    if (!isset($reservas[$row['promociones_id']])) {
+      $reservas[$row['promociones_id']] = [];
+    }
+    $reservas[$row['promociones_id']][$row['tipos_inmuebles_id']] = (int)$row['ventas'];
   }
 
   // detalles de las visitas
@@ -92,7 +129,8 @@ return function (Request $request, Response $response, array $args) {
   if (count($promociones) !== 0) {
     $ids = array_map(function ($result) {
       return $result['id'];
-    }, $promociones);  
+    }, $promociones);
+    // detalles inmuebles
     $sql = 'SELECT p.id AS id, promociones_tipos_inmuebles.cantidad AS cantidad, tipos_inmuebles.id AS tipoId '.
           'FROM promociones AS p '.
           'JOIN promociones_tipos_inmuebles ON promociones_tipos_inmuebles.promociones_id = p.id '.
@@ -107,6 +145,22 @@ return function (Request $request, Response $response, array $args) {
         ? $inmuebles[$result['id']]
         : (object) [];
     }
+
+    // detalles hostoricos
+    $sql = 'SELECT p.id AS id, promociones_historico.cantidad AS cantidad, promociones_historico.type AS type, tipos_inmuebles.id AS tipoId '.
+      'FROM promociones AS p '.
+      'JOIN promociones_historico ON promociones_historico.promociones_id = p.id '.
+      'JOIN tipos_inmuebles ON promociones_historico.tipos_inmuebles_id = tipos_inmuebles.id '.
+      'WHERE p.id IN ('. implode(', ', $ids) .')';
+    $inmuebles = [];
+    foreach($this->db->query($sql)->fetchAll() as $inmueble) {
+      $inmuebles[$inmueble['id']][$inmueble['type']][$inmueble['tipoId']] = (int) $inmueble['cantidad'];
+    }
+    foreach($promociones as $key => $result) {
+      $promociones[$key]['historico'] = $inmuebles[$result['id']]
+        ? $inmuebles[$result['id']]
+        : (object) ['venta' => [], 'reserva' => []];
+    }
   }
 
   // detalles de tipos de inmueble
@@ -119,14 +173,14 @@ return function (Request $request, Response $response, array $args) {
     }
     return $result;
   }, $sth->fetchAll());
-  //print_r();
-  //die ();
 
   return $this->response->withJson([
     'error' => false,
     'data' => [
       'promociones' => $promociones,
+      'reservas_by_month' => $reservasByMonth,
       'tipos_inmuebles' => $tipos_inmuebles,
+      'reservas' => $reservas,
       'ventas' => $ventas,
       'ventas_by_month' => $ventasByMonth,
       'visitas' => $visitas,

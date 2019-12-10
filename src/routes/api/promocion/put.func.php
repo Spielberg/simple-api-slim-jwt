@@ -79,7 +79,39 @@ return function (Request $request, Response $response, array $args) {
       }
     }
   }
-      
+
+  if ($input['historico']) {
+    foreach(['reserva', 'venta'] as $type) {
+      foreach($input['historico'][$type] as $inmuebleId => $cantidad) {
+        if ($cantidad < 0) {
+          $sql = 'DELETE FROM `promociones_historico` '.
+                'WHERE `promociones_id` = ' . (int) $input['id'] . ' '.
+                'AND `type` = "' . $type . '" '.
+                'AND tipos_inmuebles_id = ' . (int) $inmuebleId . ' LIMIT 1';
+          try {
+            $this->db->query($sql)->execute();
+          } catch(Exception $e) {
+            return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+          }
+        } else {
+          $sql = 'INSERT INTO promociones_historico ' .
+              '(promociones_id, tipos_inmuebles_id, cantidad, type) VALUES (:id, :tipos_inmuebles_id, :cantidad, :type) '.
+              ' ON DUPLICATE KEY UPDATE cantidad = :cantidad';
+          $sth = $this->db->prepare($sql);
+          $sth->bindParam('id', $input['id'], PDO::PARAM_INT);
+          $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
+          $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
+          $sth->bindParam('type', $type);
+          try {
+            $sth->execute();
+          } catch(Exception $e) {
+            return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+          }
+        }
+      }
+    }
+  }  
+
   return $this->response->withJson([
     'error' => false,
   ]);

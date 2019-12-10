@@ -54,6 +54,24 @@ return function (Request $request, Response $response, array $args) {
     }
   }
 
+  // guardamos ahora los historicos
+  if ($input['historico']) {
+    foreach(['reserva', 'venta'] as $type) {
+      foreach($input['historico'][$type] as $inmuebleId => $cantidad) {
+        $sth = $this->db->prepare('INSERT INTO promociones_historico (promociones_id, tipos_inmuebles_id, cantidad, type) VALUES (:id, :tipos_inmuebles_id, :cantidad, :type)');
+        $sth->bindParam('id', $id, PDO::PARAM_INT);
+        $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
+        $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
+        $sth->bindParam('type', $type);
+        try {
+          $sth->execute();
+        } catch(Exception $e) {
+          return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+        }
+      }
+    }
+  }
+
   return $this->response->withJson([
     'error' => false,
     'data' => [

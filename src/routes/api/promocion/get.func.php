@@ -76,10 +76,36 @@ return function (Request $request, Response $response, array $args) {
       $inmuebles[$inmueble['id']][] = ['id' => (int) $inmueble['tipoId'], 'name' => $inmueble['name'], 'cantidad' => (int) $inmueble['cantidad']];
     }
     foreach($results as $key => $result) {
-      $results[$key]['inmuebles'] = $inmuebles[$result['id']];
+      $results[$key]['inmuebles'] = !is_null($inmuebles[$result['id']])
+        ? $inmuebles[$result['id']]
+        : [];
     }
   }
   
+  // obtener los inmuebles asociados
+  if (count($results) !== 0) {
+    $ids = array_map(function ($result) {
+      return $result['id'];
+    }, $results);  
+    $sql = 'SELECT p.id AS id, tipos_inmuebles.name AS name, promociones_historico.type AS type, promociones_historico.cantidad AS cantidad, tipos_inmuebles.id AS tipoId '.
+          'FROM promociones AS p '.
+          'JOIN promociones_historico ON promociones_historico.promociones_id = p.id '.
+          'JOIN tipos_inmuebles ON promociones_historico.tipos_inmuebles_id = tipos_inmuebles.id '.
+          'WHERE p.id IN ('. implode(', ', $ids) .')';
+    $historico = [];
+    foreach($this->db->query($sql)->fetchAll() as $inmueble) {
+      if (!isset($historico[$inmueble['id']][$inmueble['type']])) {
+        $historico[$inmueble['id']][$inmueble['type']] = [];
+      }
+      $historico[$inmueble['id']][$inmueble['type']][] = ['id' => (int) $inmueble['tipoId'], 'name' => $inmueble['name'], 'cantidad' => (int) $inmueble['cantidad']];
+    }
+    foreach($results as $key => $result) {
+      $results[$key]['historico'] = !is_null($historico[$result['id']])
+        ? $historico[$result['id']]
+        : [];
+    }
+  }
+
   return $this->response->withJson([
     'error' => false,
     'data' => [

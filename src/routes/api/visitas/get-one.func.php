@@ -13,7 +13,7 @@ return function (Request $request, Response $response, array $args) {
 
   // get params or set default.
   $select = 'SELECT visitas.*, users.name AS comercial, promo1.name AS promo1, promo2.name AS promo2, '.
-            'v.id as vID, v.promociones_id AS vPromoId, v.tipos_inmuebles_id AS vTipo '.
+            'v.id as vID, v.promociones_id AS vPromoId, v.tipos_inmuebles_id AS vTipo, v.reserva AS vReserva '.
             'FROM visitas '.
             'JOIN users ON visitas.users_id = users.id '.
             'LEFT JOIN promociones AS promo1 ON visitas.promociones_id_1 = promo1.id '.
@@ -45,13 +45,14 @@ return function (Request $request, Response $response, array $args) {
   };
 
   // ventas
-  $data['venta'] = new stdClass();
+  $data['reserva'] = new stdClass();
   if ($data['vID']) {
-    $data['venta'] = (object) [
+    $data['reserva'] = (object) [
       'id' => $data['vID'],
       'promocion' => $data['vPromoId'],
       'tipo' => $data['vTipo'],
       'deleted' => false,
+      'reserva' => (int)$data['vReserva'] === 1,
     ];
   }
   unset($data['vID'], $data['vPromoId'], $data['vTipo']);

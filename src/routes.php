@@ -64,6 +64,12 @@ return function (App $app) {
     $app->delete('/ventas/{id}', require __DIR__ . '/routes/api/ventas/delete.func.php');
     $app->post('/ventas', require __DIR__ . '/routes/api/ventas/post.func.php');
 
+    // reservas
+    $app->get('/reservas', require __DIR__ . '/routes/api/ventas/get.func.php');
+    $app->delete('/reservas/{id}', require __DIR__ . '/routes/api/ventas/delete.func.php');
+    $app->post('/reservas', require __DIR__ . '/routes/api/reservas/post.func.php');
+    $app->put('/reservas/{id}', require __DIR__ . '/routes/api/reservas/put.func.php');
+
     // mailjet
     $app->get('/mail/templates', require __DIR__ . '/routes/api/mail/templates.func.php');
     $app->post('/mail/newsletter', require __DIR__ . '/routes/api/mail/newsletter.func.php');

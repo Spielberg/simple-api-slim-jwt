@@ -23,6 +23,18 @@ return function (Request $request, Response $response, array $args) {
     return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
   }
         
+  // update visita para ponerla en stats de reserva
+  $sql = 'UPDATE `visitas` '.
+          'INNER JOIN `ventas` ON `ventas`.`visitas_id` = `visitas`.`id` '.
+          'SET `visitas`.`status` = "primera" '.
+          'WHERE `ventas`.`id` = :id';
+  $sth = $this->db->prepare($sql);
+  try {
+    $sth->execute(['id' => $args['id']]);
+  } catch(Exception $e) {
+    return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+  }
+
   return $this->response->withJson([
     'error' => false,
   ]);
