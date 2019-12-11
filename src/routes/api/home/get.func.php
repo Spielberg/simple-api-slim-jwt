@@ -50,24 +50,24 @@ return function (Request $request, Response $response, array $args) {
                 '(SELECT SUM(`cantidad`) FROM `promociones_tipos_inmuebles` WHERE `promociones_id` = :promocionId) AS `totales`, '.
                 '( '.
 	                '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `promociones_id` = :promocionId AND reserva = 1) + '.
-	                '(SELECT SUM(`cantidad`) FROM `promociones_historico` WHERE `type` = "reserva" AND `promociones_id` = :promocionId) '.
+	                '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "reserva" AND `promociones_id` = :promocionId) '.
                 ') AS `reservadas`, '.
                 '( '.
 	                '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `promociones_id` = :promocionId AND reserva = 0) + '.
-	                '(SELECT SUM(`cantidad`) FROM `promociones_historico` WHERE `type` = "venta" AND `promociones_id` = :promocionId) '.
+	                '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "venta" AND `promociones_id` = :promocionId) '.
                 ') AS `vendidas` '.
                 'FROM `visitas` WHERE `promociones_id_1` = :promocionId  GROUP BY `totales`';
     $selectParams['promocionId'] = $request->getQueryParam('promocionId', null);
   } else {
     $select = 'SELECT '.
-                '(SELECT SUM(`cantidad`) FROM `promociones_tipos_inmuebles`) AS `totales`, '.
+                '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_tipos_inmuebles`) AS `totales`, '.
                 '( '.
                   '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `reserva` = 1) + '.
-                  '(SELECT SUM(`cantidad`) FROM `promociones_historico` WHERE `type` = "reserva") '.
+                  '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "reserva") '.
                 ') AS `reservadas`, '.
                 '( '.
                   '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `reserva` = 0) + '.
-                  '(SELECT SUM(`cantidad`) FROM `promociones_historico` WHERE `type` = "venta") '.
+                  '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "venta") '.
                 ') AS `vendidas` '.
                 'FROM `visitas` GROUP BY `totales`';
   }
