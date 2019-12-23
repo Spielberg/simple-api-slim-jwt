@@ -47,7 +47,8 @@ return function (Request $request, Response $response, array $args) {
   if (!is_null($params['promocionId'])) {
     $select = 'SELECT '.
               '(SELECT IFNULL(SUM(`cantidad`), 0) '.
-              'FROM `promociones_tipos_inmuebles`) AS `totales`, '.
+              'FROM `promociones_tipos_inmuebles` '.
+              'WHERE `promociones_id` = :promocionId ) AS `totales`, '.
               '(SELECT COUNT(*) '.
               'FROM `ventas` '.
               'WHERE `deleted` = 0 '.
