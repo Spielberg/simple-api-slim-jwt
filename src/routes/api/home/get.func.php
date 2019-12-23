@@ -43,42 +43,58 @@ return function (Request $request, Response $response, array $args) {
   return [$result['conociste'], $result['count']];
   }, $sth->fetchAll());
 
-  // gràfica resumen de ventas
-  $selectParams = [];
-  if (!is_null($request->getQueryParam('promocionId', null))) {
+  // grafica resumen de ventas
+  if (!is_null($params['promocionId'])) {
     $select = 'SELECT '.
-                '(SELECT SUM(`cantidad`) FROM `promociones_tipos_inmuebles` WHERE `promociones_id` = :promocionId) AS `totales`, '.
-                '( '.
-	                '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `promociones_id` = :promocionId AND reserva = 1) + '.
-	                '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "reserva" AND `promociones_id` = :promocionId) '.
-                ') AS `reservadas`, '.
-                '( '.
-	                '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `promociones_id` = :promocionId AND reserva = 0) + '.
-	                '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "venta" AND `promociones_id` = :promocionId) '.
-                ') AS `vendidas` '.
-                'FROM `visitas` WHERE `promociones_id_1` = :promocionId  GROUP BY `totales`';
-    $selectParams['promocionId'] = $request->getQueryParam('promocionId', null);
+              '(SELECT IFNULL(SUM(`cantidad`), 0) '.
+              'FROM `promociones_tipos_inmuebles`) AS `totales`, '.
+              '(SELECT COUNT(*) '.
+              'FROM `ventas` '.
+              'WHERE `deleted` = 0 '.
+                'AND `reserva` = 0 '.
+                'AND `promociones_id` = :promocionId '.
+                'AND `updated_at` >= :since '.
+                'AND `updated_at` <= :until ) AS `vendidas`, '.
+              '(SELECT COUNT(*) '.
+              'FROM `ventas` '.
+              'WHERE `deleted` = 0 '.
+                'AND `reserva` = 1 '.
+                'AND `promociones_id` = :promocionId ) AS `reservadas`, '.  
+              '(SELECT IFNULL(SUM(`cantidad`), 0) '.
+              'FROM `promociones_historico` '.
+              'WHERE `type` = "venta") AS `historico` '.
+            'FROM `visitas` '.
+            'WHERE `promociones_id_1` = :promocionId '.
+            'GROUP BY `totales`';
   } else {
     $select = 'SELECT '.
-                '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_tipos_inmuebles`) AS `totales`, '.
-                '( '.
-                  '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `reserva` = 1) + '.
-                  '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "reserva") '.
-                ') AS `reservadas`, '.
-                '( '.
-                  '(SELECT COUNT(*) FROM `ventas` WHERE `deleted` = 0 AND `reserva` = 0) + '.
-                  '(SELECT IFNULL(SUM(`cantidad`), 0) FROM `promociones_historico` WHERE `type` = "venta") '.
-                ') AS `vendidas` '.
-                'FROM `visitas` GROUP BY `totales`';
+              '(SELECT IFNULL(SUM(`cantidad`), 0) '.
+              'FROM `promociones_tipos_inmuebles`) AS `totales`, '.
+              '(SELECT COUNT(*) '.
+              'FROM `ventas` '.
+              'WHERE `deleted` = 0 '.
+                'AND `reserva` = 0 '.
+                'AND `updated_at` >= :since '.
+                'AND `updated_at` <= :until ) AS `vendidas`, '.
+              '(SELECT COUNT(*) '.
+              'FROM `ventas` '.
+              'WHERE `deleted` = 0 '.
+                'AND `reserva` = 1 ) AS `reservadas`, '.  
+              '(SELECT IFNULL(SUM(`cantidad`), 0) '.
+              'FROM `promociones_historico` '.
+              'WHERE `type` = "venta") AS `historico` '.
+            'FROM `visitas` '.
+            'GROUP BY `totales`';
   }
   $sth = $this->db->prepare($select);
-  $sth->execute($selectParams);
+  $sth->execute($params);
   $count = (array) $sth->fetchObject();
   $counts = [];
-  $counts = [
-    ['reservadas', (int) $count['reservadas']],
-    ['vendidas', (int) $count['vendidas']],
-    ['libres', (int) $count['totales'] - (int) $count['reservadas'] -(int) $count['vendidas']],
+  $counts = (object)[
+    'vendidas' => (int) $count['vendidas'],
+    'reservadas' => (int) $count['reservadas'],
+    'historico' => (int) $count['historico'],
+    'totales' => (int) $count['totales'],
   ];
 
   return $this->response->withJson([
