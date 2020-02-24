@@ -45,6 +45,11 @@ return function (App $app) {
 
     // status promociones
     $app->get('/status_promociones', require __DIR__ . '/routes/api/status-promociones/get.func.php');
+    $app->put('/status_promociones', require __DIR__ . '/routes/api/status-promociones/put.func.php');
+
+    // status promociones
+    $app->get('/sceenshots[/{id}]', require __DIR__ . '/routes/api/sceenshots/get.func.php');
+    $app->post('/sceenshots', require __DIR__ . '/routes/api/sceenshots/post.func.php');
 
     // tipos de inmuebles
     $app->get('/tipos-inmuebles/nombre', require __DIR__ . '/routes/api/tipos-inmuebles/get-nombres.func.php');
