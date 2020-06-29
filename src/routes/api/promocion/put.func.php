@@ -21,11 +21,11 @@ return function (Request $request, Response $response, array $args) {
 
   // allowed.
   $allowed = [
-    'name' => PDO::PARAM_STR,
-    'zona' => PDO::PARAM_STR,
     'active' => PDO::PARAM_BOOL,
     'deleted' => PDO::PARAM_BOOL,
     'home' => PDO::PARAM_BOOL,
+    'name' => PDO::PARAM_STR,
+    'zona' => PDO::PARAM_STR,
   ];
 
   $arrInput = [
@@ -53,29 +53,25 @@ return function (Request $request, Response $response, array $args) {
 
   // guardamos ahora los inmuebles
   if ($input['inmuebles']) {
+    $sql = 'DELETE FROM `promociones_tipos_inmuebles` '.
+               'WHERE `promociones_id` = ' . (int) $input['id'];
+    try {
+      $this->db->query($sql)->execute();
+    } catch(Exception $e) {
+      return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+    }
     foreach($input['inmuebles'] as $inmuebleId => $cantidad) {
-      if ($cantidad < 0) {
-        $sql = 'DELETE FROM `promociones_tipos_inmuebles` '.
-               'WHERE `promociones_id` = ' . (int) $input['id'] . ' '.
-               'AND tipos_inmuebles_id = ' . (int) $inmuebleId . ' LIMIT 1';
-        try {
-          $this->db->query($sql)->execute();
-        } catch(Exception $e) {
-          return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
-        }
-      } else {
-        $sql = 'INSERT INTO promociones_tipos_inmuebles ' .
-             '(promociones_id, tipos_inmuebles_id, cantidad) VALUES (:id, :tipos_inmuebles_id, :cantidad) '.
-             ' ON DUPLICATE KEY UPDATE cantidad = :cantidad';
-        $sth = $this->db->prepare($sql);
-        $sth->bindParam('id', $input['id'], PDO::PARAM_INT);
-        $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
-        $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
-        try {
-          $sth->execute();
-        } catch(Exception $e) {
-          return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
-        }
+      $sql = 'INSERT INTO promociones_tipos_inmuebles ' .
+            '(promociones_id, tipos_inmuebles_id, cantidad) VALUES (:id, :tipos_inmuebles_id, :cantidad) '.
+            ' ON DUPLICATE KEY UPDATE cantidad = :cantidad';
+      $sth = $this->db->prepare($sql);
+      $sth->bindParam('id', $input['id'], PDO::PARAM_INT);
+      $sth->bindParam('tipos_inmuebles_id', $inmuebleId, PDO::PARAM_INT);
+      $sth->bindParam('cantidad', $cantidad, PDO::PARAM_INT);
+      try {
+        $sth->execute();
+      } catch(Exception $e) {
+        return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
       }
     }
   }
