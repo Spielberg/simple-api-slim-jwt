@@ -16,6 +16,7 @@ return function (Request $request, Response $response, array $args) {
   $id = $request->getQueryParam('id', null);
   $query = $request->getQueryParam('query', null);
   $telefono = $request->getQueryParam('telefono', null);
+  $active = (int) $request->getQueryParam('active', 0);
 
   // get promociones detaills
   $params = [
@@ -42,6 +43,10 @@ return function (Request $request, Response $response, array $args) {
   if ($home !== 0) {
     $select .= 'AND home = 1 ';
     $count  .= 'AND home = 1 ';
+  }
+  if ($active !== 0) {
+    $select .= 'AND active = 1 ';
+    $count  .= 'AND active = 1 ';
   }
   $select .= 'ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
   $sth = $this->db->prepare($select);
