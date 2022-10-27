@@ -9,7 +9,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 return function (Request $request, Response $response, array $args) {
   $token = $request->getAttribute('decoded_token_data');
-
   // get settings array.
   $settings = $this->get('settings');  
 
@@ -55,6 +54,7 @@ return function (Request $request, Response $response, array $args) {
             'JOIN promociones AS promo1 ON visitas.promociones_id_1 = promo1.id '.
             'LEFT JOIN promociones AS promo2 ON visitas.promociones_id_2 = promo2.id '.
             'WHERE visitas.deleted = 0 ';
+
   if ($id !== null && $id !== '') {
     $select .= "AND visitas.id = :id ";
     $params[] = [ 'key' => 'id', 'var' => $id, 'code' => PDO::PARAM_INT ];
@@ -76,15 +76,17 @@ return function (Request $request, Response $response, array $args) {
     $params[] = [ 'key' => 'status', 'var' => $status, 'code' => PDO::PARAM_STR ];
   }
   $select .= 'ORDER BY visitas.created_at DESC';
+
   $sth = $this->db->prepare($select);
   foreach($params as $obj) {
     $sth->bindParam($obj['key'], $obj['var'], $obj['code']);
   }
-  try {
+
+  //try {
     $sth->execute();
-  } catch(Exception $e) {
-    return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
-  }
+  //} catch(Exception $e) {
+  //  return $this->response->withJson(['error' => true, 'message' => $e->getMessage()]);  
+  //}
   
   $results = [];
   foreach($sth->fetchAll() as $key => $result) {
@@ -121,9 +123,9 @@ return function (Request $request, Response $response, array $args) {
     }
     $i++;
   }
-  
+
   $writer = new Xlsx($spreadsheet);
-  
+
   header('Content-Type: application/vnd.ms-excel');
   header('Content-Disposition: attachment; filename="visitas.xlsx"');
   header('Accept: application/vnd.ms-excel');
