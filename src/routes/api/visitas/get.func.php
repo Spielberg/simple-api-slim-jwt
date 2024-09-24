@@ -16,6 +16,7 @@ return function (Request $request, Response $response, array $args) {
   $limit = (int) $request->getQueryParam('limit', $settings['pagination']['limit']);
   $offset = (int) $request->getQueryParam('offset', 0);
   $promocion = (int) $request->getQueryParam('promocion', 0);
+  $user_id = (int) $request->getQueryParam('user_id', 0);
   $query = $request->getQueryParam('query', null);
   $since = $request->getQueryParam('since', null);
   $status = $request->getQueryParam('status', null);
@@ -53,6 +54,10 @@ return function (Request $request, Response $response, array $args) {
     $select .= "AND (visitas.promociones_id_1 = :promocion OR visitas.promociones_id_2 = :promocion) ";
     $count  .= 'AND (visitas.promociones_id_1 = ' . $promocion . ' OR visitas.promociones_id_2 = ' . $promocion . ') ';
     $params[] = [ 'key' => 'promocion', 'var' => $promocion, 'code' => PDO::PARAM_INT ];
+  }
+  if ($user_id !== 0) {
+    $select .= "AND (visitas.users_id = :user_id) ";
+    $params[] = [ 'key' => 'user_id', 'var' => $users_id, 'code' => PDO::PARAM_INT ];
   }
   if ($status !== null && $status !== '') {
     $select .= "AND visitas.status = :status ";
